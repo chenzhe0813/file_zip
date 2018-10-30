@@ -2,8 +2,8 @@
   <div id="app">
     <el-container>
       <el-header height="100px">
-        <img src="./assets/logo.png">
-        <p>微服务开发向导</p>
+        <!-- <img src="./assets/logo.png">
+        <p>微服务开发向导</p> -->
       </el-header>
       <el-container style="position: absolute;bottom: 0;top: 100px;width: 100%;">
         <el-aside width="250px">
@@ -23,7 +23,7 @@
             <el-menu-item index="/contractGeneration">
               契约生成
             </el-menu-item>
-            <el-menu-item index="/servicePackaging">
+            <el-menu-item index="/servicePackagingIndex">
               服务打包
             </el-menu-item>
           </el-menu>
@@ -109,5 +109,9 @@
   .el-main {
     color: #333;
     padding-bottom: 30px;
+  }
+
+  .el-submenu .el-menu-item{
+    text-indent: 20px;
   }
 </style>
