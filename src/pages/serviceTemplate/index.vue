@@ -43,11 +43,9 @@
 
 <script>
 	import Vue from 'vue'
-	import { Row, Col, Tabs, TabPane } from 'element-ui'
+	import { Row, Col } from 'element-ui'
 	Vue.use(Row);
 	Vue.use(Col);
-	Vue.use(Tabs);
-	Vue.use(TabPane);
 	export default {
 	   data() {
 	      return {

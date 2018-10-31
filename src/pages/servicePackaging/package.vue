@@ -5,18 +5,21 @@
 		    <span>基本信息</span>
 		  </div>
 		  <div>
-		  	<el-form ref="basicForm" :model="basic" label-width="80px">
+		  	<el-form ref="basicForm" :model="basic" label-width="100px">
 				<el-form-item label="应用名">
 				    <el-input v-model="basic.name"></el-input>
 				</el-form-item>
 			  	<el-form-item label="版本信息">
 				    <el-input v-model="basic.versionInfo"></el-input>
 				</el-form-item>
+			  	<el-form-item label="配置版本信息">
+				    <el-input v-model="basic.configVersion" readonly={true}></el-input>
+				</el-form-item>
 			  	<el-form-item label="路径">
 				    <el-input type="file" webkitdirectory directory multiple class="file-input"></el-input>
 				</el-form-item>
 			  	<el-form-item label="应用描述">
-				    <el-input v-model="basic.desc"></el-input>
+				    <el-input rows="5" type="textarea" v-model="basic.desc"></el-input>
 				</el-form-item>
 			</el-form>
 		  </div>
@@ -27,7 +30,7 @@
 		    <span>用户信息</span>
 		  </div>
 		  <div>
-		  	<el-form ref="userForm" :model="userInfo" label-width="80px">
+		  	<el-form ref="userForm" :model="userInfo" label-width="100px">
 				<el-form-item label="发布人">
 				    <el-input v-model="userInfo.user"></el-input>
 				</el-form-item>
@@ -44,6 +47,43 @@
 				    <el-input v-model="userInfo.addr"></el-input>
 				</el-form-item>
 			</el-form>
+		  </div>
+		</el-card>
+
+
+	 	<el-card class="box-card">
+		  <div slot="header">
+		    <span>执行脚本</span>
+		  </div>
+		  <div>
+			<el-tabs class="scripts-card" type="border-card" v-model="flatTab" @tab-click="handleClick">
+			    <el-tab-pane label="Windows" name="windows">
+		    		<el-row :gutter="20">
+					  <el-col :span="6">
+					  	<div class="scripts-box">
+					  		<div class="scripts-title">脚本库</div>
+					  		<ul class="scripts-ul">
+					  			<li>test.bat</li>
+					  			<li>test.bat</li>
+					  			<li>test.bat</li>
+					  			<li>test.bat</li>
+					  			<li>test.bat</li>
+					  			<li>test.bat</li>
+					  			<li>test.bat</li>
+					  		</ul>
+					  	</div>
+					  </el-col>
+					  <el-col :span="18">
+					  	<div class="scripts-choosen-box">
+					  		<div class="scripts-choosen-title">脚本库</div>
+					  	</div>
+					  </el-col>
+					</el-row>
+			    </el-tab-pane>
+			    <el-tab-pane label="Linux" name="linux">
+		    		
+			    </el-tab-pane>
+		 	</el-tabs>
 		  </div>
 		</el-card>
 
@@ -86,7 +126,7 @@
 			    </el-table-column>
 	          </el-table>
 	          <div class="table-form-wrap">
-	          	<el-select v-model="envForm.name" class="w140">
+	          	<!-- <el-select v-model="envForm.name" class="w140">
 			      <el-option label="Java" value="Java"></el-option>
 			      <el-option label="C++" value="C++"></el-option>
 			      <el-option label="C#" value="C#"></el-option>
@@ -95,7 +135,9 @@
 			      <el-option label="1.1.0" value="1.1.0"></el-option>
 			      <el-option label="2.0.2" value="2.0.2"></el-option>
 			      <el-option label="3.1.0" value="3.1.0"></el-option>
-			    </el-select>
+			    </el-select> -->
+				<el-input placeholder="请填写依赖项" v-model="envForm.name" class="w140"></el-input>
+				<el-input placeholder="请填写版本号" v-model="envForm.version" class="w140"></el-input>
 				<el-input placeholder="请填写描述" v-model="envForm.desc" class="w315"></el-input>
 				<el-button type="text" size="small" class="addBtn" @click="addDependency(envTableData,envForm.name,envForm.version,envForm.desc)">添加</el-button>
 	          </div>
@@ -218,6 +260,7 @@ export default {
       	email: '',
       	addr: '',
       },
+      flatTab: 'windows',
       activeNames: [''],
       envTableData:[],
       localTableData: [],
@@ -241,14 +284,17 @@ export default {
     }
   },
   created(){
-  	console.log(this.$store.state.serviceFlat);
-  	axios.get('http://element-cn.eleme.io/versions.json')
-	  .then(function (response) {
-	    console.log(response);
-	  })
-	  .catch(function (response) {
-	    console.log(response);
-	  });
+  	// console.log(this.$store.state.serviceFlat);
+  	// console.log(this.$store.state.winFlatBit);
+  	// console.log(this.$store.state.linuxFlatBit);
+
+  	// axios.get('http://element-cn.eleme.io/versions.json')
+	  // .then(function (response) {
+	  //   console.log(response);
+	  // })
+	  // .catch(function (response) {
+	  //   console.log(response);
+	  // });
   },
   methods: {
   	deleteRow(index, rows) {
@@ -281,6 +327,42 @@ export default {
   .box-card {
     width: 800px;
     margin: 10px 0 30px 15px;
+  }
+  .scripts-card{
+  	min-height: 600px;
+  }
+  .scripts-box{
+  	min-height: 510px;
+  	margin: 5px;
+  	border: 1px solid #909399;
+  	text-align: center;
+  }
+  .scripts-title{
+  	height: 40px;
+  	line-height: 40px;
+  	width: 90%;
+  	margin: 0 auto;
+  	font-size: 14px;
+  	font-weight: 700;
+  	border-bottom: 1px solid #909399;
+  	color: #909399;
+  }
+  .scripts-choosen-box{
+  	border: 1px solid #909399;
+  	min-height: 510px;
+  	margin-top: 5px;
+  }
+  .scripts-choosen-title{
+  	height: 40px;
+  	line-height: 40px;
+  	font-size: 14px;
+  	font-weight: 700;
+  	color: #909399;
+  }
+  .scripts-ul{
+  	list-style: none;
+  	padding: 0;
+  	overflow: auto;
   }
   .el-form-item {
     margin-bottom: 15px;

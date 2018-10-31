@@ -10,6 +10,8 @@ import {
 	Form,
 	FormItem,
 	Input,
+	Tabs, 
+	TabPane,
 } from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import App from './App'
@@ -24,6 +26,8 @@ Vue.use(TableColumn);
 Vue.use(Form);
 Vue.use(FormItem);
 Vue.use(Input);
+Vue.use(Tabs);
+Vue.use(TabPane);
 
 Vue.config.productionTip = false
 
