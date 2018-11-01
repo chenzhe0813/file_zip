@@ -13,7 +13,7 @@
 				    <el-input v-model="basic.versionInfo"></el-input>
 				</el-form-item>
 			  	<el-form-item label="配置版本信息">
-				    <el-input v-model="basic.configVersion" readonly={true}></el-input>
+				    <el-input v-model="basic.configVersion" readonly></el-input>
 				</el-form-item>
 			  	<el-form-item label="路径">
 				    <el-input type="file" webkitdirectory directory multiple class="file-input"></el-input>
@@ -56,7 +56,7 @@
 		    <span>执行脚本</span>
 		  </div>
 		  <div>
-			<el-tabs class="scripts-card" type="border-card" v-model="flatTab" @tab-click="handleClick">
+			<el-tabs class="scripts-card" type="border-card" v-model="flatTab">
 			    <el-tab-pane label="Windows" name="windows">
 		    		<el-row :gutter="20">
 					  <el-col :span="6">
@@ -75,7 +75,32 @@
 					  </el-col>
 					  <el-col :span="18">
 					  	<div class="scripts-choosen-box">
-					  		<div class="scripts-choosen-title">脚本库</div>
+					  		<div class="scripts-choosen-title">
+					  			<span>文件名</span>
+					  			<span>脚本描述</span>
+					  			<span>操作</span>
+					  		</div>
+					  		<div class="scripts-choosen clearfix">
+					  			<div class="scripts-steps">卸载前</div>
+					  			<div class="scripts-files">
+					  				<div>
+					  					<p class="scripts-files-name">清理脚本.bat</p>
+					  					<p class="scripts-files-desc">清理临时文件</p>
+					  					<p class="scripts-files-operate">
+					  						<span>删除</span>
+					  						<span>修改</span>
+					  					</p>
+					  				</div>
+					  				<div>
+					  					<p class="scripts-files-name">清理脚本.bat</p>
+					  					<p class="scripts-files-desc">清理临时文件</p>
+					  					<p class="scripts-files-operate">
+					  						<span>删除</span>
+					  						<span>修改</span>
+					  					</p>
+					  				</div>
+					  			</div>
+					  		</div>
 					  	</div>
 					  </el-col>
 					</el-row>
@@ -323,7 +348,18 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style>
+<style lang="scss">
+$gray: #909399;
+ .clearfix:after{
+    display: block;
+    clear: both;
+    content: "";
+    visibility: hidden;
+    height: 0;
+}
+.clearfix{
+    zoom:1;
+}
   .box-card {
     width: 800px;
     margin: 10px 0 30px 15px;
@@ -334,7 +370,7 @@ export default {
   .scripts-box{
   	min-height: 510px;
   	margin: 5px;
-  	border: 1px solid #909399;
+  	border: 1px solid $gray;
   	text-align: center;
   }
   .scripts-title{
@@ -344,11 +380,11 @@ export default {
   	margin: 0 auto;
   	font-size: 14px;
   	font-weight: 700;
-  	border-bottom: 1px solid #909399;
-  	color: #909399;
+  	border-bottom: 1px solid $gray;
+  	color: $gray;
   }
   .scripts-choosen-box{
-  	border: 1px solid #909399;
+  	border: 1px solid $gray;
   	min-height: 510px;
   	margin-top: 5px;
   }
@@ -357,12 +393,43 @@ export default {
   	line-height: 40px;
   	font-size: 14px;
   	font-weight: 700;
-  	color: #909399;
+  	color: $gray;
+  }
+  .scripts-choosen-title span{
+  	margin-left: 100px;
   }
   .scripts-ul{
   	list-style: none;
   	padding: 0;
   	overflow: auto;
+  }
+  .scripts-steps{
+  	width: 90px;
+  	text-indent: 20px;
+  	font-size: 15px;
+  	margin-top: 10px;
+  	float: left;
+  }
+  .scripts-files{
+  	padding: 5px;
+  	min-height: 40px;
+  	font-size: 14px;
+  	width: 420px;
+  	float: left;
+  	border: 1px solid $gray;
+  	p{
+  		margin: 3px 0;
+  		float: left;
+  	}
+  	.scripts-files-name{
+  		width: 150px;
+  	}
+  	.scripts-files-desc{
+  		width: 160px;
+  	}
+  	.scripts-files-operate{
+  		width: 90px;
+  	}
   }
   .el-form-item {
     margin-bottom: 15px;
@@ -371,30 +438,34 @@ export default {
   	height: 34px;
   }
   .el-card__header{
-  	color: #909399;
+  	color: $gray;
   	font-weight: 700;
   }
   .el-form-item__label, .el-form-item__content, .el-input__inner{
   	line-height: 34px;
   }
-  .file-input input{
-  	line-height: 32px;
+  .file-input{
+  	input{
+  		line-height: 32px;
+  	}
   }
-.dependency-card .el-card__body{
-  padding-top: 0;
-}
-.dependency-card .el-collapse{
-  border-top-width: 0;
-}
-.dependency-card .el-collapse-item__wrap{
-  padding-left: 5px;
-  border-top: 1px solid #ebeef5;
-}
-.dependency-card .el-collapse-item__header{
-  color: #909399;
-  text-indent: 5px;
-  font-size: 15px;
-  font-weight: 700;
+.dependency-card{
+	.el-card__body{
+ 		padding-top: 0;
+	}
+	.el-collapse{
+  		border-top-width: 0;
+	}
+	.el-collapse-item__wrap{
+	  padding-left: 5px;
+	  border-top: 1px solid #ebeef5;
+	}
+	.el-collapse-item__header{
+	  color: $gray;
+	  text-indent: 5px;
+	  font-size: 15px;
+	  font-weight: 700;
+	}
 }
 .table-form-wrap{
 	margin-top: 20px;
@@ -418,7 +489,7 @@ export default {
     line-height: 68px;
 	font-size: 15px;
 	font-weight: 700;
-	color: #909399;
+	color: $gray;
 	margin: 0 20px 0 4px;
 }
 .btns-wrap{
