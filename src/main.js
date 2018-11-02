@@ -12,6 +12,7 @@ import {
 	Input,
 	Tabs, 
 	TabPane,
+	Dialog,
 } from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import App from './App'
@@ -28,6 +29,7 @@ Vue.use(FormItem);
 Vue.use(Input);
 Vue.use(Tabs);
 Vue.use(TabPane);
+Vue.use(Dialog);
 
 Vue.config.productionTip = false
 
