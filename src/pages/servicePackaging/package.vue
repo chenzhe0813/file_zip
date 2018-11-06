@@ -84,11 +84,11 @@
 											<div class="scripts-steps">{{step.name}}</div>
 
 											<div class="scripts-files">
-												<div v-for="(file, index) in packageJson.script.windows[step.key]" class="file-item clearfix" v-dragging="{ item: file, list: packageJson.script.windows[step.key], group: `${step.key}win` }" :key="`${file.name}${step.key}${index}win`">
+												<div v-for="(file, index) in script.windows[step.key]" class="file-item clearfix" v-dragging="{ item: file, list: script.windows[step.key], group: `${step.key}win` }" :key="`${file.name}${step.key}${index}win`">
 													<p class="scripts-files-name">{{file.name}}</p>
 													<p class="scripts-files-desc">{{file.desc}}</p>
 													<p class="scripts-files-operate">
-														<span @click="scriptsDelete(index, packageJson.script.windows[step.key])">删除</span>
+														<span @click="scriptsDelete(index, script.windows[step.key])">删除</span>
 														<span @click="scriptsEdit(file, index, step.key)">修改</span>
 													</p>
 												</div>
@@ -125,11 +125,11 @@
 											<div class="scripts-steps">{{step.name}}</div>
 
 											<div class="scripts-files">
-												<div v-for="(file, index) in packageJson.script.linux[step.key]" class="file-item clearfix" v-dragging="{ item: file, list: packageJson.script.linux[step.key], group: `${step.key}Lin` }" :key="`${file.name}${step.key}${index}Lin`">
+												<div v-for="(file, index) in script.linux[step.key]" class="file-item clearfix" v-dragging="{ item: file, list: script.linux[step.key], group: `${step.key}Lin` }" :key="`${file.name}${step.key}${index}Lin`">
 													<p class="scripts-files-name">{{file.name}}</p>
 													<p class="scripts-files-desc">{{file.desc}}</p>
 													<p class="scripts-files-operate">
-														<span @click="scriptsDelete(index, packageJson.script.linux[step.key])">删除</span>
+														<span @click="scriptsDelete(index, script.linux[step.key])">删除</span>
 														<span @click="scriptsEdit(file, index, step.key)">修改</span>
 													</p>
 												</div>
@@ -277,12 +277,12 @@ width="80">
 </div>
 </el-collapse-item>
 </el-collapse>
-<span class="basic_mirror">基础镜像选择</span>
+<!-- <span class="basic_mirror">基础镜像选择</span>
 <el-select v-model="basicMirror" class="w140">
 	<el-option label="mirror1" value="mirror1"></el-option>
 	<el-option label="mirror2" value="mirror2"></el-option>
 	<el-option label="mirror3" value="mirror3"></el-option>
-</el-select>
+</el-select> -->
 </el-card>
 <div class="btns-wrap">
 	<el-button type="primary" @click="handleCancel">取消</el-button>
@@ -309,7 +309,7 @@ width="80">
 	</div>
 </el-dialog>
 <!-- 弹出框 end-->
-<button @click="test">测试</button>
+<!-- <button @click="test">测试</button> -->
 </div>
 </template>
 
@@ -338,10 +338,10 @@ width="80">
 					dialogShowCheckbox: true,// 控制弹出框中复选框显示（编辑时无需复选框）
 					editFileToStep: null,// 记录在哪一步编辑执行脚本
 					packageJson: { //保存的package.json文件内容
-						name: '1',
-						version: '1',
+						name: '',
+						version: '',
 						'config-version': '1',
-						description: '1',
+						description: '',
 						author: {
 							name: '',
 							organization: '',
@@ -350,8 +350,6 @@ width="80">
 							'contact-address': ''
 						},
 						platforms: {
-							windows: ['32bit', '64bit'],
-							linux: ['32bit', '64bit']
 						},
 						script:{
 							windows:{
@@ -379,6 +377,26 @@ width="80">
 						'net-dependency':[],
 						'engine':[]
 					},
+					script:{
+						windows:{
+							'pre-install': [],
+							'post-install': [],
+							'pre-start': [],
+							'start': [],
+							'post-start': [],
+							'pre-uninstall': [],
+							'post-uninstall': []
+						},
+						linux:{
+							'pre-install': [],
+							'post-install': [],
+							'pre-start': [],
+							'start': [],
+							'post-start': [],
+							'pre-uninstall': [],
+							'post-uninstall': []
+						}
+					},
 					dialogScriptForm: {// 弹框表单，需要添加的脚本信息
 						id: undefined,
 						name: '',
@@ -405,7 +423,7 @@ width="80">
 						version: '',
 						desc: '',
 					},
-					basicMirror: 'mirror1',// 基础镜像
+					// basicMirror: 'mirror1',// 基础镜像
 					scriptsListWindows:[// Windows脚本库
 					],
 					scriptsListLinux:[// Linux脚本库
@@ -455,9 +473,8 @@ width="80">
 			    _this.windowsFlat = serviceFlat === 1 || serviceFlat === 3;
 			    _this.linuxFlat = serviceFlat === 2 || serviceFlat === 3;
 			    _this.flatTab = (_this.windowsFlat) ? 'windows' : 'linux';
-			  	console.log(_this.$store.state.winFlatBit);
-			  	console.log(_this.$store.state.linuxFlatBit);
 			  	if(_this.windowsFlat){
+			  		_this.packageJson.platforms['windows'] = _this.$store.state.winFlatBit;
 				  	axios.get('http://cetc-demo.dalianyun.com/api/v1/default/scripts?platform=WINDOWS')
 					  .then(function (response) {
 					    if(response.status === 200){
@@ -472,6 +489,8 @@ width="80">
 					  });
 			  	}
 			  	if(_this.linuxFlat){
+			  		_this.packageJson.platforms['linux'] = _this.$store.state.linuxFlatBit;
+			  		console.log(_this.packageJson.platforms['linux']);
 				  	axios.get('http://cetc-demo.dalianyun.com/api/v1/default/scripts?platform=LINUX')
 					  .then(function (response) {
 					    if(response.status === 200){
@@ -563,10 +582,10 @@ width="80">
 				let flat = _this.flatTab;
 				if(_this.dialogShowCheckbox){
 					_this.dialogScriptForm.steps.map((item)=>{
-						_this['packageJson']['script'][flat][item].push(data);
+						_this['script'][flat][item].push(data);
 					})
 				}else{
-					_this['packageJson']['script'][flat][_this.editFileToStep.step][_this.editFileToStep.index] = data;
+					_this['script'][flat][_this.editFileToStep.step][_this.editFileToStep.index] = data;
 				}
 
 				_this.dialogFormVisible = false;
@@ -594,13 +613,96 @@ width="80">
 				if(!_this.wzip){
 					return Message.error('请选择本地文件路径!');
 				}
-				_this.wzip.generateAsync({type:"blob"})
-				.then(function (content) {
-					console.log(content)
-	              // see FileSaver.js
-	              saveAs(content, `${_this.wzipName}.zip`);
-	          	});
-			}
+				// 遍历选择的执行脚本文件 start
+				let windowsScripts = _this.script.windows;
+				let scriptsArr = [];
+				let linuxScripts = _this.script.linux;
+				for(let i in windowsScripts){
+					for(let x in windowsScripts[i]){
+						_this.packageJson.script.windows[i].push(windowsScripts[i][x]['name']);// 赋值执行脚本的name到package.json中
+						if(windowsScripts[i][x]['id'] !== 'localFile'){
+							scriptsArr.push(windowsScripts[i][x]['id']);// 将脚本id加入临时数组，用于去重后请求远程服务器下载
+						}
+					}
+				}
+				for(let j in linuxScripts){
+					for(let y in linuxScripts[j]){
+						_this.packageJson.script.linux[j].push(linuxScripts[j][y]['name']);// 赋值执行脚本的name到package.json中
+						if(linuxScripts[j][y]['id'] !== 'localFile'){
+							scriptsArr.push(linuxScripts[j][y]['id']);// 将脚本id加入临时数组，用于去重后请求远程服务器下载
+						}
+					}
+				}
+				let choosenScripts = _this.uniqueArr(scriptsArr);
+				console.log(choosenScripts);
+	
+				let promiseArr = [];
+				for(let k in choosenScripts){
+					let p = new Promise(function(resolve,reject){
+						axios.get(`http://cetc-demo.dalianyun.com/api/v1/script/${choosenScripts[k]}/stream-content`)
+						  .then(function (response) {
+						    if(response.status === 200){
+						    	_this.wzip.file(`script/${response.data.fileName}`, response.data.fileContent, {base64: true});
+						    	// _this.wzip.file(`script/${response.data.fileName}`, 'c3RhcnQgbXlzcWw=', {base64: true});
+						    	resolve('ok');
+						    }
+						  })
+						  .catch(function (response) {
+						    console.log(response);
+						    reject('err');
+						  });
+					})
+					promiseArr.push(p);
+				}
+
+				// 遍历选择的执行脚本文件 end
+				Promise.all(promiseArr).then((result) => {
+					_this.localScriptsWzip.map((item)=>{
+						_this.wzip.file(`script/${item.name}`, item)
+					})
+					_this.wzip.file('package.json', JSON.stringify(_this.packageJson));
+					_this.wzip.generateAsync({type:"blob"})
+					.then(function (content) {
+		              saveAs(content, `${_this.wzipName}.zip`);
+		          	}); 
+				}).catch((error) => {
+				  console.log(error)
+				})
+			},
+			uniqueArr(arr){// 数组去重
+				return Array.from(new Set(arr)); 
+			},
+			formatJson(json, options) { // 格式化json字符串，不清楚有无操作平台兼容bug，暂时不使用
+                 var formatted = '',     //转换后的json字符串
+	             padIdx = 0,         //换行后是否增减PADDING的标识
+	             PADDING = '    ';   //4个空格符
+		         /**
+		          * 将对象转化为string
+		          */
+		         if (typeof json !== 'string') {
+		             json = JSON.stringify(json);
+		         }
+		         json = json.replace(/([\{\}])/g, '\r\n$1\r\n')
+		                     .replace(/([\[\]])/g, '\r\n$1\r\n')
+		                     .replace(/(\,)/g, '$1\r\n')
+		                     .replace(/(\r\n\r\n)/g, '\r\n')
+		                     .replace(/\r\n\,/g, ',');
+		         /** 
+		          * 根据split生成数据进行遍历，一行行判断是否增减PADDING
+		          */
+		        (json.split('\r\n')).forEach(function (node, index) {
+		             var indent = 0,
+		                 padding = '';
+		             if (node.match(/\{$/) || node.match(/\[$/)) indent = 1;
+		             else if (node.match(/\}/) || node.match(/\]/))  padIdx = padIdx !== 0 ? --padIdx : padIdx;
+		             else    indent = 0;
+		             for (var i = 0; i < padIdx; i++)    padding += PADDING;
+		             formatted += padding + node + '\r\n';
+		             padIdx += indent;
+		             console.log('index:'+index+',indent:'+indent+',padIdx:'+padIdx+',node-->'+node);
+		         });
+		         return formatted;
+            }
 		}
 	}
 </script>
