@@ -5,47 +5,46 @@
 					<span>基本信息</span>
 				</div>
 				<div>
-					<el-form ref="basic" :model="basic" label-width="100px">
+					<el-form ref="basic" label-width="100px">
 						<el-form-item label="应用名">
-							<el-input v-model="basic.name"></el-input>
+							<el-input v-model="packageJson.name"></el-input>
 						</el-form-item>
 						<el-form-item label="版本信息">
-							<el-input v-model="basic.versionInfo"></el-input>
+							<el-input v-model="packageJson.version"></el-input>
 						</el-form-item>
 						<el-form-item label="配置版本信息">
-							<el-input v-model="basic.configVersion" readonly></el-input>
+							<el-input v-model="packageJson['config-version']" readonly></el-input>
 						</el-form-item>
 						<el-form-item label="路径" class="input-type-file multiple-file">
 							<p class="show-file-name">{{wzipName}}</p>
 							<el-input type="file" @change='addLocalFiles()' webkitdirectory directory multiple id="dir_input" class="file-input"></el-input>
 						</el-form-item>
 						<el-form-item label="应用描述">
-							<el-input rows="5" type="textarea" v-model="basic.desc"></el-input>
+							<el-input rows="5" type="textarea" v-model="packageJson.description"></el-input>
 						</el-form-item>
 					</el-form>
 				</div>
 			</el-card>
-
 			<el-card class="box-card">
 				<div slot="header">
 					<span>用户信息</span>
 				</div>
 				<div>
-					<el-form ref="userForm" :model="userInfo" label-width="100px">
+					<el-form ref="userForm" label-width="100px">
 						<el-form-item label="发布人">
-							<el-input v-model="userInfo.user"></el-input>
+							<el-input v-model="packageJson.author.name"></el-input>
 						</el-form-item>
 						<el-form-item label="组织结构">
-							<el-input v-model="userInfo.org"></el-input>
+							<el-input v-model="packageJson.author.organization"></el-input>
 						</el-form-item>
 						<el-form-item label="联系电话">
-							<el-input v-model="userInfo.tel"></el-input>
+							<el-input v-model="packageJson.author['contact-phone']"></el-input>
 						</el-form-item>
 						<el-form-item label="电子邮件">
-							<el-input v-model="userInfo.email"></el-input>
+							<el-input v-model="packageJson.author['contact-email']"></el-input>
 						</el-form-item>
 						<el-form-item label="通信地址">
-							<el-input v-model="userInfo.addr"></el-input>
+							<el-input v-model="packageJson.author['contact-address']"></el-input>
 						</el-form-item>
 					</el-form>
 				</div>
@@ -58,7 +57,7 @@
 				</div>
 				<div>
 					<el-tabs class="scripts-card" type="border-card" v-model="flatTab">
-						<el-tab-pane label="Windows" name="windows">
+						<el-tab-pane v-if="windowsFlat" label="Windows" name="windows">
 							<el-row :gutter="20">
 								<el-col :span="6">
 									<div class="scripts-box">
@@ -67,7 +66,10 @@
 											<li v-for="item in scriptsListWindows">
 												<p @click="addScript(item)">{{item.name}}</p>
 											</li>
-											<input type="file" @change='addLocalScript()' id="win_script_input"/>
+											<li v-for="item in localScriptsListWindows">
+												<p @click="addScript(item)">{{item.name}}</p>
+											</li>
+											<input type="file" @change='addLocalScript(1)' id="win_script_input"/>
 										</ul>
 									</div>
 								</el-col>
@@ -82,11 +84,11 @@
 											<div class="scripts-steps">{{step.name}}</div>
 
 											<div class="scripts-files">
-												<div v-for="(file, index) in scriptsChoosenWindows[step.key]" class="file-item clearfix" v-dragging="{ item: file, list: scriptsChoosenWindows[step.key], group: `${step.key}win` }" :key="`${file.name}${step.key}${index}win`">
+												<div v-for="(file, index) in packageJson.script.windows[step.key]" class="file-item clearfix" v-dragging="{ item: file, list: packageJson.script.windows[step.key], group: `${step.key}win` }" :key="`${file.name}${step.key}${index}win`">
 													<p class="scripts-files-name">{{file.name}}</p>
 													<p class="scripts-files-desc">{{file.desc}}</p>
 													<p class="scripts-files-operate">
-														<span @click="scriptsDelete(index, scriptsChoosenWindows[step.key])">删除</span>
+														<span @click="scriptsDelete(index, packageJson.script.windows[step.key])">删除</span>
 														<span @click="scriptsEdit(file, index, step.key)">修改</span>
 													</p>
 												</div>
@@ -96,15 +98,19 @@
 								</el-col>
 							</el-row>
 						</el-tab-pane>
-						<el-tab-pane label="Linux" name="linux">
+						<el-tab-pane v-if="linuxFlat" label="Linux" name="linux">
 							<el-row :gutter="20">
 								<el-col :span="6">
 									<div class="scripts-box">
 										<div class="scripts-title">脚本库</div>
-										<ul class="scripts-ul">
+										<ul class="scripts-ul input-type-file">
 											<li v-for="item in scriptsListLinux">
 												<p @click="addScript(item)">{{item.name}}</p>
 											</li>
+											<li v-for="item in localScriptsListLinux">
+												<p @click="addScript(item)">{{item.name}}</p>
+											</li>
+											<input type="file" @change='addLocalScript(2)' id="lin_script_input"/>
 										</ul>
 									</div>
 								</el-col>
@@ -119,11 +125,11 @@
 											<div class="scripts-steps">{{step.name}}</div>
 
 											<div class="scripts-files">
-												<div v-for="(file, index) in scriptsChoosenLinux[step.key]" class="file-item clearfix" v-dragging="{ item: file, list: scriptsChoosenLinux[step.key], group: `${step.key}Lin` }" :key="`${file.name}${step.key}${index}Lin`">
+												<div v-for="(file, index) in packageJson.script.linux[step.key]" class="file-item clearfix" v-dragging="{ item: file, list: packageJson.script.linux[step.key], group: `${step.key}Lin` }" :key="`${file.name}${step.key}${index}Lin`">
 													<p class="scripts-files-name">{{file.name}}</p>
 													<p class="scripts-files-desc">{{file.desc}}</p>
 													<p class="scripts-files-operate">
-														<span @click="scriptsDelete(index, scriptsChoosenLinux[step.key])">删除</span>
+														<span @click="scriptsDelete(index, packageJson.script.linux[step.key])">删除</span>
 														<span @click="scriptsEdit(file, index, step.key)">修改</span>
 													</p>
 												</div>
@@ -145,7 +151,7 @@
 				<el-collapse v-model="activeNames">
 					<el-collapse-item title="环境依赖" name="1">
 						<el-table
-						:data="envTableData"
+						:data="packageJson.engine"
 						style="width: 100%">
 						<el-table-column
 						prop="name"
@@ -158,7 +164,7 @@
 					width="180">
 				</el-table-column>
 				<el-table-column
-				prop="desc"
+				prop="description"
 				label="描述"
 				>
 			</el-table-column>
@@ -167,7 +173,7 @@
 			width="80">
 			<template slot-scope="scope">
 				<el-button
-				@click.native.prevent="deleteRow(scope.$index, envTableData)"
+				@click.native.prevent="deleteRow(scope.$index, packageJson.engine)"
 				type="text"
 				size="small">
 				删除
@@ -189,13 +195,13 @@
 				  <el-input placeholder="请填写依赖项" v-model="envForm.name" class="w140"></el-input>
 				  <el-input placeholder="请填写版本号" v-model="envForm.version" class="w140"></el-input>
 				  <el-input placeholder="请填写描述" v-model="envForm.desc" class="w315"></el-input>
-				  <el-button type="text" size="small" class="addBtn" @click="addDependency(envTableData,envForm.name,envForm.version,envForm.desc)">添加</el-button>
+				  <el-button type="text" size="small" class="addBtn" @click="addDependency(packageJson.engine,envForm.name,envForm.version,envForm.desc)">添加</el-button>
 				</div>
 			</el-collapse-item>
 
 			<el-collapse-item title="本地依赖" name="2">
 				<el-table
-				:data="localTableData"
+				:data="packageJson.dependency"
 				style="width: 100%">
 				<el-table-column
 				prop="name"
@@ -208,7 +214,7 @@
 			width="180">
 		</el-table-column>
 		<el-table-column
-		prop="desc"
+		prop="description"
 		label="描述">
 	</el-table-column>
 	<el-table-column
@@ -216,7 +222,7 @@
 	width="80">
 	<template slot-scope="scope">
 		<el-button
-		@click.native.prevent="deleteRow(scope.$index, localTableData)"
+		@click.native.prevent="deleteRow(scope.$index, packageJson.dependency)"
 		type="text"
 		size="small">
 		删除
@@ -228,13 +234,13 @@
 	<el-input placeholder="请填写应用名" v-model="localForm.name" class="w140"></el-input>
 	<el-input placeholder="请填写版本号" v-model="localForm.version" class="w140"></el-input>
 	<el-input placeholder="请填写描述" v-model="localForm.desc" class="w315"></el-input>
-	<el-button type="text" size="small" class="addBtn" @click="addDependency(localTableData,localForm.name,localForm.version,localForm.desc)">添加</el-button>
+	<el-button type="text" size="small" class="addBtn" @click="addDependency(packageJson.dependency,localForm.name,localForm.version,localForm.desc)">添加</el-button>
 </div>
 </el-collapse-item>
 
 <el-collapse-item title="网络依赖" name="3">
 	<el-table
-	:data="netTableData"
+	:data="packageJson['net-dependency']"
 	style="width: 100%">
 	<el-table-column
 	prop="name"
@@ -247,7 +253,7 @@ label="版本号"
 width="180">
 </el-table-column>
 <el-table-column
-prop="desc"
+prop="description"
 label="描述">
 </el-table-column>
 <el-table-column
@@ -255,7 +261,7 @@ label="操作"
 width="80">
 <template slot-scope="scope">
 	<el-button
-	@click.native.prevent="deleteRow(scope.$index, netTableData)"
+	@click.native.prevent="deleteRow(scope.$index, packageJson['net-dependency'])"
 	type="text"
 	size="small">
 	删除
@@ -267,7 +273,7 @@ width="80">
 	<el-input placeholder="请填写应用名" v-model="netForm.name" class="w140"></el-input>
 	<el-input placeholder="请填写版本号" v-model="netForm.version" class="w140"></el-input>
 	<el-input placeholder="请填写描述" v-model="netForm.desc" class="w315"></el-input>
-	<el-button type="text" size="small" class="addBtn" @click="addDependency(netTableData,netForm.name,netForm.version,netForm.desc)">添加</el-button>
+	<el-button type="text" size="small" class="addBtn" @click="addDependency(packageJson['net-dependency'],netForm.name,netForm.version,netForm.desc)">添加</el-button>
 </div>
 </el-collapse-item>
 </el-collapse>
@@ -326,11 +332,52 @@ width="80">
 		export default {
 			data () {
 				return {
+					windowsFlat: true,
+					linuxFlat: false,
 					dialogFormVisible: false,// 控制弹出框显示
 					dialogShowCheckbox: true,// 控制弹出框中复选框显示（编辑时无需复选框）
 					editFileToStep: null,// 记录在哪一步编辑执行脚本
 					packageJson: { //保存的package.json文件内容
-
+						name: '1',
+						version: '1',
+						'config-version': '1',
+						description: '1',
+						author: {
+							name: '',
+							organization: '',
+							'contact-phone': '',
+							'contact-email': '',
+							'contact-address': ''
+						},
+						platforms: {
+							windows: ['32bit', '64bit'],
+							linux: ['32bit', '64bit']
+						},
+						script:{
+							windows:{
+								'pre-install': [],
+								'post-install': [],
+								'pre-start': [],
+								'start': [],
+								'post-start': [],
+								'pre-uninstall': [],
+								'post-uninstall': []
+							},
+							linux:{
+								'pre-install': [],
+								'post-install': [],
+								'pre-start': [],
+								'start': [],
+								'post-start': [],
+								'pre-uninstall': [],
+								'post-uninstall': []
+							}
+						},
+						'start': 'LightLooping.jar',
+						'start-args': '--port 11111',
+						'dependency':[],
+						'net-dependency':[],
+						'engine':[]
 					},
 					dialogScriptForm: {// 弹框表单，需要添加的脚本信息
 						id: undefined,
@@ -338,20 +385,7 @@ width="80">
 						desc: '',
 						steps: [],
 					},
-					basic: {// 基本信息
-						name: '',
-						versionInfo: '',
-						path: '',
-						desc: '',
-					},
-					userInfo: {// 用户信息
-						user: '',
-						org: '',
-						tel: '',
-						email: '',
-						addr: '',
-					},
-					flatTab: 'windows',// 切换平台tab
+					flatTab: '',// 切换平台tab
 					activeNames: [''],
 					envTableData:[],// 环境依赖
 					localTableData: [],// 本地依赖
@@ -372,121 +406,93 @@ width="80">
 						desc: '',
 					},
 					basicMirror: 'mirror1',// 基础镜像
-					scriptsListWindows:[{// Windows脚本库
-						id: 1,
-						name: 'test.bat',
-					},{
-						id: 2,
-						name: 'czcz.bat',
-					},{
-						id: 3,
-						name: '测试脚本.bat',
-					},{
-						id: 4,
-						name: '清理文件.bat',
-					}
+					scriptsListWindows:[// Windows脚本库
 					],
-					scriptsListLinux:[{// Linux脚本库
-						id: 1,
-						name: '1111.bat',
-					},{
-						id: 2,
-						name: '22222.bat',
-					},{
-						id: 3,
-						name: '测试脚本.bat',
-					},{
-						id: 4,
-						name: '清理文件.bat',
-					}
+					scriptsListLinux:[// Linux脚本库
 					],
-					scriptsChoosenWindows:{// 选择Windows的脚本信息
-						fileBeforeUnload:[
-						],
-						fileAfterUnload:[
-						],
-						fileBeforeInstall:[
-						],
-						fileAfterInstall:[
-						],
-						fileBeforeRun:[
-						],
-						fileRunning:[
-						],
-						fileAfterRun:[
-						],
-					},
-					scriptsChoosenLinux:{// 选择Linux的脚本信息
-						fileBeforeUnload:[
-						],
-						fileAfterUnload:[
-						],
-						fileBeforeInstall:[
-						],
-						fileAfterInstall:[
-						],
-						fileBeforeRun:[
-						],
-						fileRunning:[
-						],
-						fileAfterRun:[
-						],
-					},
+					localScriptsListWindows:[],// 本地选择的Windows脚本库
+					localScriptsListLinux:[],// 本地选择的Linux脚本库
 					scriptSteps:[// 执行脚本模块步骤array
 					{
-						key: 'fileBeforeUnload',
+						key: 'pre-uninstall',
 						name: '卸载前'
 					},
 					{
-						key: 'fileAfterUnload',
+						key: 'post-uninstall',
 						name: '卸载后'
 					},
 					{
-						key: 'fileBeforeInstall',
+						key: 'pre-install',
 						name: '安装前'
 					},
 					{
-						key: 'fileAfterInstall',
+						key: 'post-install',
 						name: '安装后'
 					},
 					{
-						key: 'fileBeforeRun',
+						key: 'pre-start',
 						name: '启动前'
 					},
 					{
-						key: 'fileRunning',
+						key: 'start',
 						name: '启动'
 					},
 					{
-						key: 'fileAfterRun',
+						key: 'post-start',
 						name: '启动后'
 					}
 					],
 					wzip: null,
+					localScriptsWzip: [],// 缓存本地选择的执行脚本文件
 					wzipName: '请选择文件',
 				}
 			},
 			created(){
 				this.$dragging.$on('dragged', ({ value }) => {
-					console.log(value)
-			        // console.log(value.item)
-			        // console.log(value.list)
-			        // console.log(value.group)
 			    })
-	  	// console.log(this.$store.state.serviceFlat);
-	  	// console.log(this.$store.state.winFlatBit);
-	  	// console.log(this.$store.state.linuxFlatBit);
-
-	  	// axios.get('http://element-cn.eleme.io/versions.json')
-		  // .then(function (response) {
-		  //   console.log(response);
-		  // })
-		  // .catch(function (response) {
-		  //   console.log(response);
-		  // });
-		},
+			    const serviceFlat = this.$store.state.serviceFlat;
+			    let _this = this;
+			    _this.windowsFlat = serviceFlat === 1 || serviceFlat === 3;
+			    _this.linuxFlat = serviceFlat === 2 || serviceFlat === 3;
+			    _this.flatTab = (_this.windowsFlat) ? 'windows' : 'linux';
+			  	console.log(_this.$store.state.winFlatBit);
+			  	console.log(_this.$store.state.linuxFlatBit);
+			  	if(_this.windowsFlat){
+				  	axios.get('http://cetc-demo.dalianyun.com/api/v1/default/scripts?platform=WINDOWS')
+					  .then(function (response) {
+					    if(response.status === 200){
+					    	for(var i in response.data) {
+							     let obj = {id: i, name: response.data[i]}
+							     _this.scriptsListWindows.push(obj);
+							}
+					    }
+					  })
+					  .catch(function (response) {
+					    console.log(response);
+					  });
+			  	}
+			  	if(_this.linuxFlat){
+				  	axios.get('http://cetc-demo.dalianyun.com/api/v1/default/scripts?platform=LINUX')
+					  .then(function (response) {
+					    if(response.status === 200){
+					    	for(var i in response.data) {
+							     let obj = {id: i, name: response.data[i]}
+							     _this.scriptsListLinux.push(obj);
+							}
+					    }
+					  })
+					  .catch(function (response) {
+					    console.log(response);
+					  });
+			  	}
+			},
 		methods: {
 			test(){
+				let _this = this;
+				_this.wzip = new JSZip();
+				_this.localScriptsWzip.map((item)=>{
+					_this.wzip.file(item.name, item)
+				})
 				console.log(this.wzip);
 			},
 			addLocalFiles(){
@@ -502,6 +508,23 @@ width="80">
 				}else{
 					_this.wzip = null;
 					_this.wzipName = '请选择文件';
+				}
+			},
+			addLocalScript(i){
+				let fileList =  i===1 ? document.getElementById('win_script_input').files
+									  : document.getElementById('lin_script_input').files;
+				if(fileList && fileList.length){
+					console.log(fileList[0]);
+					let file = {
+						id: 'localFile',
+						name: fileList[0].name,
+					}
+					if(i===1){
+						this.localScriptsListWindows.push(file);
+					}else{
+						this.localScriptsListLinux.push(file);
+					}
+					this.localScriptsWzip.push(fileList[0]);
 				}
 			},
 			scriptsDelete(index, arr){
@@ -537,13 +560,13 @@ width="80">
 					name: _this.dialogScriptForm.name,
 					desc: _this.dialogScriptForm.desc,
 				}
-				let flat = _this.flatTab === 'windows' ? 'scriptsChoosenWindows' : 'scriptsChoosenLinux';
+				let flat = _this.flatTab;
 				if(_this.dialogShowCheckbox){
 					_this.dialogScriptForm.steps.map((item)=>{
-						_this[flat][item].push(data);
+						_this['packageJson']['script'][flat][item].push(data);
 					})
 				}else{
-					_this[flat][_this.editFileToStep.step][_this.editFileToStep.index] = data;
+					_this['packageJson']['script'][flat][_this.editFileToStep.step][_this.editFileToStep.index] = data;
 				}
 
 				_this.dialogFormVisible = false;
@@ -551,8 +574,8 @@ width="80">
 			deleteRow(index, rows) {
 				rows.splice(index, 1);
 			},
-			addDependency(arr, name, version, desc){
-				let info = {name, version, desc}
+			addDependency(arr, name, version, description){
+				let info = {name, version, description}
 				arr.push(info);
 			},
 			handleCancel(){

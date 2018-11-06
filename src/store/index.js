@@ -5,7 +5,7 @@ Vue.use(vuex);
 export default new vuex.Store({
     state:{
         serviceFlat: 1,//服务包平台 1: windows;2:linux;3:both
-        winFlatBit: [],
+        winFlatBit: ['32bit'],
         linuxFlatBit: [],
     },
     mutations:{
