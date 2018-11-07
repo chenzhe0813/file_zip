@@ -2,8 +2,8 @@
   <div id="app">
     <el-container>
       <el-header height="100px">
-        <img src="./assets/logo.png">
-        <p>微服务开发向导</p>
+        <!-- <img src="./assets/logo.png">
+        <p>微服务开发向导</p> -->
       </el-header>
       <el-container style="position: absolute;bottom: 0;top: 100px;width: 100%;">
         <el-aside width="250px">

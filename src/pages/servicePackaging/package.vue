@@ -1,5 +1,11 @@
 	<template>
 		<div>
+			<div class="open-zip-box clearfix">
+				<label id="realBtn" class="btn">
+				     <input type="file" class="hide-inputs" id="openZip" name="file" accept="application/zip" @change='openZip()'>
+				     <span class="openZip">打开</span>
+				</label>
+			</div>
 			<el-card class="box-card">
 				<div slot="header">
 					<span>基本信息</span>
@@ -17,7 +23,11 @@
 						</el-form-item>
 						<el-form-item label="路径" class="input-type-file multiple-file">
 							<p class="show-file-name">{{wzipName}}</p>
-							<el-input type="file" @change='addLocalFiles()' webkitdirectory directory multiple id="dir_input" class="file-input"></el-input>
+							<el-input readonly></el-input>
+							<label class="btn multiple-file-label">
+							     <input type="file" class="hide-inputs" @change='addLocalFiles()' webkitdirectory directory multiple id="dir_input" name="file">
+							     <span class="openZip">选择文件</span>
+							</label>
 						</el-form-item>
 						<el-form-item label="应用描述">
 							<el-input rows="5" type="textarea" v-model="packageJson.description"></el-input>
@@ -69,7 +79,10 @@
 											<li v-for="item in localScriptsListWindows">
 												<p @click="addScript(item)">{{item.name}}</p>
 											</li>
-											<input type="file" @change='addLocalScript(1)' id="win_script_input"/>
+											<label class="btn">
+											     <input type="file" class="hide-inputs" @change='addLocalScript(1)' id="win_script_input" name="file">
+											     <span class="openZip">选择文件</span>
+											</label>
 										</ul>
 									</div>
 								</el-col>
@@ -110,7 +123,10 @@
 											<li v-for="item in localScriptsListLinux">
 												<p @click="addScript(item)">{{item.name}}</p>
 											</li>
-											<input type="file" @change='addLocalScript(2)' id="lin_script_input"/>
+											<label class="btn">
+											     <input type="file" class="hide-inputs" @change='addLocalScript(2)' id="lin_script_input" name="file">
+											     <span class="openZip">选择文件</span>
+											</label>
 										</ul>
 									</div>
 								</el-col>
@@ -309,7 +325,6 @@ width="80">
 	</div>
 </el-dialog>
 <!-- 弹出框 end-->
-<!-- <button @click="test">测试</button> -->
 </div>
 </template>
 
@@ -506,14 +521,30 @@ width="80">
 			  	}
 			},
 		methods: {
-			test(){
+		    openZip(event){ //解压本地文件中的zip，获取其json文件的内容。
+		        let file = document.getElementById('openZip').files[0];
 				let _this = this;
-				_this.wzip = new JSZip();
-				_this.localScriptsWzip.map((item)=>{
-					_this.wzip.file(item.name, item)
-				})
-				console.log(this.wzip);
-			},
+		        console.log(file)
+		        if(file.name.indexOf('.zip')>=0){ 
+		          _this.wzip = new JSZip();
+		          _this.wzip.loadAsync(file)
+		          .then(function (zip) {
+		              zip.file("package.json").async("string").then(function success(content) {
+		                console.log(content);
+		                _this.packageJson=JSON.parse(content);
+		                console.log(_this.packageJson);
+
+		              }, function error(e) {
+
+		              });
+
+		          }, function (e) {
+
+		          });
+		        }else{
+		          Message.error('请选择.zip文件!');
+		        }
+		    },
 			addLocalFiles(){
 				var _this = this;
 				var fileList = document.getElementById('dir_input').files;
@@ -720,6 +751,30 @@ $gray: #909399;
 .clearfix{
 	zoom:1;
 }
+.open-zip-box{
+	width: 800px;
+	height: 35px;
+	margin: 0 auto;
+
+	.openZip{
+		cursor: pointer;
+		display: inline-block;
+		float: right;
+		color: #fff;
+		background-color: #409EFF;
+		border-color: #409EFF;
+		text-align: center;
+		line-height: 1;
+		font-weight: 500;
+		font-size: 14px;
+		padding: 10px 20px;
+		border-radius: 4px;
+	}
+}
+.hide-inputs{
+	left:-9999px;
+	position:absolute;
+}
 .input-type-file{
 	position: relative;
 	.show-file-name{
@@ -728,25 +783,27 @@ $gray: #909399;
 		z-index: 999;
 		left: 15px;
 	}
-	input{
-		font-size: 0;
-	}
-	input::-webkit-file-upload-button {
-        background: #efeeee;
-        color: #333;
-        border: 1px solid #dcdfe6;
-        padding: 2px 4px;
-        border-radius: 5px;
-        font-size: 12px;
-        position: absolute;
-        right: 15px;
+    .openZip{
+    	cursor: pointer;
+		display: inline-block;
+		float: right;
+		color: #fff;
+		background-color: #409EFF;
+		border-color: #409EFF;
+		text-align: center;
+		line-height: 1;
+		font-size: 14px;
+		padding: 6px;
+		border-radius: 4px;
+		margin-right: 10px;
     }
 } 
 .multiple-file{
-	input::-webkit-file-upload-button {
-        top: 6px;
-        right: 15px;
-    }
+	.multiple-file-label{
+		position: absolute;
+		top: 4px;
+		right:3px;
+	}
 }
 .box-card {
 	width: 800px;
