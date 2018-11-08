@@ -21,7 +21,7 @@
 						<el-form-item label="配置版本信息">
 							<el-input v-model="packageJson['config-version']" readonly></el-input>
 						</el-form-item>
-						<el-form-item label="路径" class="input-type-file multiple-file">
+						<el-form-item v-if="!isEdit" label="路径" class="input-type-file multiple-file">
 							<p class="show-file-name">{{wzipName}}</p>
 							<el-input readonly></el-input>
 							<label class="btn multiple-file-label">
@@ -347,15 +347,16 @@ width="80">
 		export default {
 			data () {
 				return {
+					isEdit: false, // 是否为打开之前的zip文件，是 true ，否 false。
 					windowsFlat: true,
 					linuxFlat: false,
 					dialogFormVisible: false,// 控制弹出框显示
 					dialogShowCheckbox: true,// 控制弹出框中复选框显示（编辑时无需复选框）
 					editFileToStep: null,// 记录在哪一步编辑执行脚本
-					packageJson: { //保存的package.json文件内容
+					packageJson: { //保存的armc_package.json文件内容
 						name: '',
 						version: '',
-						'config-version': '1',
+						'config-version': 1,
 						description: '',
 						author: {
 							name: '',
@@ -490,7 +491,62 @@ width="80">
 			    _this.flatTab = (_this.windowsFlat) ? 'windows' : 'linux';
 			  	if(_this.windowsFlat){
 			  		_this.packageJson.platforms['windows'] = _this.$store.state.winFlatBit;
-				  	axios.get('http://cetc-demo.dalianyun.com/api/v1/default/scripts?platform=WINDOWS')
+			  		_this.loadWinScripts();
+			  	}
+			  	if(_this.linuxFlat){
+			  		_this.packageJson.platforms['linux'] = _this.$store.state.linuxFlatBit;
+			  		_this.loadLinuxScripts();
+			  	}
+			},
+		methods: {
+		    openZip(event){ //解压本地文件中的zip，获取其json文件的内容。
+		        let file = document.getElementById('openZip').files[0];
+				let _this = this;
+		        if(file.name.indexOf('.zip')>=0){ 
+		          _this.wzip = new JSZip();
+		          _this.wzip.loadAsync(file)
+		          .then(function (zip) {
+		          	  if(zip.file("armc_package.json")){
+			          	  zip.file("armc_package.json").async("string").then(function success(content) {
+			                _this.isEdit = true;
+			                let jsonContent = JSON.parse(content);
+			                //新的打包文件新增package.json版本文件
+			                _this.wzip.file(`armc_package_v${jsonContent['config-version']}.json`, content);
+			                for(let i in jsonContent.script){ //给script赋值，每一项附件增加id为"localFile"
+								for(let x in jsonContent.script[i]){
+									for(let j in jsonContent.script[i][x]){
+										jsonContent.script[i][x][j] = {id:'localFile', name:jsonContent.script[i][x][j].substring(14)};
+									}
+								}
+							}
+			                _this.packageJson = jsonContent;
+			                _this.packageJson['config-version'] = parseInt(_this.packageJson['config-version']) + 1;
+							_this.script = jsonContent.script;
+							_this.windowsFlat = (jsonContent.platforms.windows && jsonContent.platforms.windows.length>0);
+							_this.linuxFlat = (jsonContent.platforms.linux && jsonContent.platforms.linux.length>0);
+							if(_this.windowsFlat && _this.scriptsListWindows.length === 0){
+						  		_this.loadWinScripts();
+						  	}
+						  	if(_this.linuxFlat && _this.scriptsListLinux.length === 0){
+						  		_this.loadLinuxScripts();
+						  	}
+							_this.wzipName = file.name.slice(0,-4);
+			              }, function error(e) {
+			              	
+			              });
+		          	  }else{
+		          	  	Message.error('所选解压文件中没有armc_package.json文件!');
+		          	  }
+		          }, function (e) {
+
+		          });
+		        }else{
+		          Message.error('请选择.zip文件!');
+		        }
+		    },
+			loadWinScripts(){//拉取服务器中windows执行脚本列表
+				let _this = this;
+				axios.get('http://cetc-demo.dalianyun.com/api/v1/default/scripts?platform=WINDOWS')
 					  .then(function (response) {
 					    if(response.status === 200){
 					    	for(var i in response.data) {
@@ -502,11 +558,10 @@ width="80">
 					  .catch(function (response) {
 					    console.log(response);
 					  });
-			  	}
-			  	if(_this.linuxFlat){
-			  		_this.packageJson.platforms['linux'] = _this.$store.state.linuxFlatBit;
-			  		console.log(_this.packageJson.platforms['linux']);
-				  	axios.get('http://cetc-demo.dalianyun.com/api/v1/default/scripts?platform=LINUX')
+			},
+			loadLinuxScripts(){//拉取服务器中linux执行脚本列表
+				let _this = this;
+			    axios.get('http://cetc-demo.dalianyun.com/api/v1/default/scripts?platform=LINUX')
 					  .then(function (response) {
 					    if(response.status === 200){
 					    	for(var i in response.data) {
@@ -518,33 +573,7 @@ width="80">
 					  .catch(function (response) {
 					    console.log(response);
 					  });
-			  	}
 			},
-		methods: {
-		    openZip(event){ //解压本地文件中的zip，获取其json文件的内容。
-		        let file = document.getElementById('openZip').files[0];
-				let _this = this;
-		        console.log(file)
-		        if(file.name.indexOf('.zip')>=0){ 
-		          _this.wzip = new JSZip();
-		          _this.wzip.loadAsync(file)
-		          .then(function (zip) {
-		              zip.file("package.json").async("string").then(function success(content) {
-		                console.log(content);
-		                _this.packageJson=JSON.parse(content);
-		                console.log(_this.packageJson);
-
-		              }, function error(e) {
-
-		              });
-
-		          }, function (e) {
-
-		          });
-		        }else{
-		          Message.error('请选择.zip文件!');
-		        }
-		    },
 			addLocalFiles(){
 				var _this = this;
 				var fileList = document.getElementById('dir_input').files;
@@ -564,7 +593,6 @@ width="80">
 				let fileList =  i===1 ? document.getElementById('win_script_input').files
 									  : document.getElementById('lin_script_input').files;
 				if(fileList && fileList.length){
-					console.log(fileList[0]);
 					let file = {
 						id: 'localFile',
 						name: fileList[0].name,
@@ -640,6 +668,26 @@ width="80">
 				});
 			},
 			handleSave(){
+				this.packageJson.script = { //重置packageJson中的script
+						windows:{
+							'pre-install': [],
+							'post-install': [],
+							'pre-start': [],
+							'start': [],
+							'post-start': [],
+							'pre-uninstall': [],
+							'post-uninstall': []
+						},
+						linux:{
+							'pre-install': [],
+							'post-install': [],
+							'pre-start': [],
+							'start': [],
+							'post-start': [],
+							'pre-uninstall': [],
+							'post-uninstall': []
+						}
+					};
 				let _this = this;
 				if(!_this.wzip){
 					return Message.error('请选择本地文件路径!');
@@ -650,7 +698,7 @@ width="80">
 				let linuxScripts = _this.script.linux;
 				for(let i in windowsScripts){
 					for(let x in windowsScripts[i]){
-						_this.packageJson.script.windows[i].push(windowsScripts[i][x]['name']);// 赋值执行脚本的name到package.json中
+						_this.packageJson.script.windows[i].push(`./armc_script/${windowsScripts[i][x]['name']}`);// 赋值执行脚本的name到package.json中
 						if(windowsScripts[i][x]['id'] !== 'localFile'){
 							scriptsArr.push(windowsScripts[i][x]['id']);// 将脚本id加入临时数组，用于去重后请求远程服务器下载
 						}
@@ -658,14 +706,13 @@ width="80">
 				}
 				for(let j in linuxScripts){
 					for(let y in linuxScripts[j]){
-						_this.packageJson.script.linux[j].push(linuxScripts[j][y]['name']);// 赋值执行脚本的name到package.json中
+						_this.packageJson.script.linux[j].push(`./armc_script/${linuxScripts[j][y]['name']}`);// 赋值执行脚本的name到package.json中
 						if(linuxScripts[j][y]['id'] !== 'localFile'){
 							scriptsArr.push(linuxScripts[j][y]['id']);// 将脚本id加入临时数组，用于去重后请求远程服务器下载
 						}
 					}
 				}
 				let choosenScripts = _this.uniqueArr(scriptsArr);
-				console.log(choosenScripts);
 	
 				let promiseArr = [];
 				for(let k in choosenScripts){
@@ -673,8 +720,8 @@ width="80">
 						axios.get(`http://cetc-demo.dalianyun.com/api/v1/script/${choosenScripts[k]}/stream-content`)
 						  .then(function (response) {
 						    if(response.status === 200){
-						    	_this.wzip.file(`script/${response.data.fileName}`, response.data.fileContent, {base64: true});
-						    	// _this.wzip.file(`script/${response.data.fileName}`, 'c3RhcnQgbXlzcWw=', {base64: true});
+						    	_this.wzip.file(`armc_script/${response.data.fileName}`, response.data.fileContent, {base64: true});
+						    	// _this.wzip.file(`armc_script/${response.data.fileName}`, 'c3RhcnQgbXlzcWw=', {base64: true});
 						    	resolve('ok');
 						    }
 						  })
@@ -689,9 +736,9 @@ width="80">
 				// 遍历选择的执行脚本文件 end
 				Promise.all(promiseArr).then((result) => {
 					_this.localScriptsWzip.map((item)=>{
-						_this.wzip.file(`script/${item.name}`, item)
+						_this.wzip.file(`armc_script/${item.name}`, item)
 					})
-					_this.wzip.file('package.json', JSON.stringify(_this.packageJson));
+					_this.wzip.file('armc_package.json', JSON.stringify(_this.packageJson));
 					_this.wzip.generateAsync({type:"blob"})
 					.then(function (content) {
 		              saveAs(content, `${_this.wzipName}.zip`);
