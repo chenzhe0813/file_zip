@@ -1,6 +1,7 @@
 	<template>
 		<div>
 			<div class="open-zip-box clearfix">
+				<h3 class="open-zip-title">服务打包</h3>
 				<label id="realBtn" class="btn">
 				     <input type="file" class="hide-inputs" id="openZip" name="file" accept="application/zip" @change='openZip()'>
 				     <span class="openZip">打开</span>
@@ -515,7 +516,11 @@ width="80">
 			                for(let i in jsonContent.script){ //给script赋值，每一项附件增加id为"localFile"
 								for(let x in jsonContent.script[i]){
 									for(let j in jsonContent.script[i][x]){
-										jsonContent.script[i][x][j] = {id:'localFile', name:jsonContent.script[i][x][j].substring(14)};
+										jsonContent.script[i][x][j] = {
+											id: 'localFile',
+											name: jsonContent.script[i][x][j]['name'].substring(14),
+											desc: jsonContent.script[i][x][j]['description']
+										}
 									}
 								}
 							}
@@ -698,7 +703,7 @@ width="80">
 				let linuxScripts = _this.script.linux;
 				for(let i in windowsScripts){
 					for(let x in windowsScripts[i]){
-						_this.packageJson.script.windows[i].push(`./armc_script/${windowsScripts[i][x]['name']}`);// 赋值执行脚本的name到package.json中
+						_this.packageJson.script.windows[i].push({name:`./armc_script/${windowsScripts[i][x]['name']}`, description:windowsScripts[i][x]['desc']});// 赋值执行脚本的name到package.json中
 						if(windowsScripts[i][x]['id'] !== 'localFile'){
 							scriptsArr.push(windowsScripts[i][x]['id']);// 将脚本id加入临时数组，用于去重后请求远程服务器下载
 						}
@@ -706,7 +711,7 @@ width="80">
 				}
 				for(let j in linuxScripts){
 					for(let y in linuxScripts[j]){
-						_this.packageJson.script.linux[j].push(`./armc_script/${linuxScripts[j][y]['name']}`);// 赋值执行脚本的name到package.json中
+						_this.packageJson.script.linux[j].push({name:`./armc_script/${linuxScripts[j][y]['name']}`, description:linuxScripts[j][y]['desc']});// 赋值执行脚本的name到package.json中
 						if(linuxScripts[j][y]['id'] !== 'localFile'){
 							scriptsArr.push(linuxScripts[j][y]['id']);// 将脚本id加入临时数组，用于去重后请求远程服务器下载
 						}
@@ -803,6 +808,12 @@ $gray: #909399;
 	height: 35px;
 	margin: 0 auto;
 
+	.open-zip-title{
+		float: left;
+		margin: 0;
+		height: 35px;
+		line-height: 35px;
+	}
 	.openZip{
 		cursor: pointer;
 		display: inline-block;
