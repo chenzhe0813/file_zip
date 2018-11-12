@@ -3,8 +3,8 @@
 			<div class="open-zip-box clearfix">
 				<h3 class="open-zip-title">服务打包</h3>
 				<label id="realBtn" class="btn">
-				     <input type="file" class="hide-inputs" id="openZip" name="file" accept="application/zip" @change='openZip()'>
-				     <span class="openZip">打开</span>
+					<input type="file" class="hide-inputs" id="openZip" name="file" accept="application/zip" @change='openZip()'>
+					<span class="openZip">打开</span>
 				</label>
 			</div>
 			<el-card class="box-card">
@@ -26,8 +26,8 @@
 							<p class="show-file-name">{{wzipName}}</p>
 							<el-input readonly></el-input>
 							<label class="btn multiple-file-label">
-							     <input type="file" class="hide-inputs" @change='addLocalFiles()' webkitdirectory directory multiple id="dir_input" name="file">
-							     <span class="openZip">选择文件</span>
+								<input type="file" class="hide-inputs" @change='addLocalFiles()' webkitdirectory directory multiple id="dir_input" name="file">
+								<span class="openZip">选择文件</span>
 							</label>
 						</el-form-item>
 						<el-form-item label="应用描述">
@@ -81,8 +81,8 @@
 												<p @click="addScript(item)">{{item.name}}</p>
 											</li>
 											<label class="btn">
-											     <input type="file" class="hide-inputs" @change='addLocalScript(1)' id="win_script_input" name="file">
-											     <span class="openZip">选择文件</span>
+												<input type="file" class="hide-inputs" @change='addLocalScript(1)' id="win_script_input" name="file">
+												<span class="openZip">选择文件</span>
 											</label>
 										</ul>
 									</div>
@@ -125,8 +125,8 @@
 												<p @click="addScript(item)">{{item.name}}</p>
 											</li>
 											<label class="btn">
-											     <input type="file" class="hide-inputs" @change='addLocalScript(2)' id="lin_script_input" name="file">
-											     <span class="openZip">选择文件</span>
+												<input type="file" class="hide-inputs" @change='addLocalScript(2)' id="lin_script_input" name="file">
+												<span class="openZip">选择文件</span>
 											</label>
 										</ul>
 									</div>
@@ -165,142 +165,56 @@
 					<span>依赖关系</span>
 				</div>
 
-				<el-collapse v-model="activeNames">
-					<el-collapse-item title="环境依赖" name="1">
+				<el-collapse>
+					<el-collapse-item v-for="item in dependencyArr" :key="item.id" :title="item.name">
 						<el-table
-						:data="packageJson.engine"
-						style="width: 100%">
-						<el-table-column
-						prop="name"
-						label="依赖项"
-						width="180">
-					</el-table-column>
-					<el-table-column
-					prop="version"
-					label="版本号"
-					width="180">
-				</el-table-column>
-				<el-table-column
-				prop="description"
-				label="描述"
-				>
-			</el-table-column>
-			<el-table-column
-			label="操作"
-			width="80">
-			<template slot-scope="scope">
-				<el-button
-				@click.native.prevent="deleteRow(scope.$index, packageJson.engine)"
-				type="text"
-				size="small">
-				删除
-			</el-button>
-		</template>
-	</el-table-column>
-</el-table>
-<div class="table-form-wrap">
-		          	<!-- <el-select v-model="envForm.name" class="w140">
-				      <el-option label="Java" value="Java"></el-option>
-				      <el-option label="C++" value="C++"></el-option>
-				      <el-option label="C#" value="C#"></el-option>
-				    </el-select>
-				    <el-select v-model="envForm.version" class="w140">
-				      <el-option label="1.1.0" value="1.1.0"></el-option>
-				      <el-option label="2.0.2" value="2.0.2"></el-option>
-				      <el-option label="3.1.0" value="3.1.0"></el-option>
-				  </el-select> -->
-				  <el-input placeholder="请填写依赖项" v-model="envForm.name" class="w140"></el-input>
-				  <el-input placeholder="请填写版本号" v-model="envForm.version" class="w140"></el-input>
-				  <el-input placeholder="请填写描述" v-model="envForm.desc" class="w315"></el-input>
-				  <el-button type="text" size="small" class="addBtn" @click="addDependency(packageJson.engine,envForm.name,envForm.version,envForm.desc)">添加</el-button>
-				</div>
-			</el-collapse-item>
+							:data="packageJson[item.id]"
+							style="width: 100%">
+							<el-table-column
+								prop="name"
+								:label='item.app'
+								width="180">
+							</el-table-column>
+							<el-table-column
+								prop="version"
+								label="版本号"
+								width="180">
+							</el-table-column>
+							<el-table-column
+								prop="description"
+								label="描述"
+								>
+							</el-table-column>
+							<el-table-column
+								label="操作"
+								width="80">
+								<template slot-scope="scope">
+									<el-button
+										@click.native.prevent="deleteRow(scope.$index, packageJson[item.id])"
+										type="text"
+										size="small">
+										删除
+									</el-button>
+								</template>
+							</el-table-column>
+						</el-table>
+						<div class="table-form-wrap">
+						  <el-input :placeholder="item.placeholder" v-model="$data[item['form']]['name']" class="w140"></el-input>
+						  <el-input placeholder="请填写版本号" v-model="$data[item['form']]['version']" class="w140"></el-input>
+						  <el-input placeholder="请填写描述" v-model="$data[item['form']]['desc']" class="w315"></el-input>
+						  <el-button type="text" size="small" class="addBtn" @click="addDependency(packageJson[item.id],$data[item['form']]['name'],$data[item['form']]['version'],$data[item['form']]['desc'])">添加</el-button>
+						</div>
+					</el-collapse-item>
+				</el-collapse>
+				<!-- <span class="basic_mirror">基础镜像选择</span>
+				<el-select v-model="basicMirror" class="w140">
+					<el-option label="mirror1" value="mirror1"></el-option>
+					<el-option label="mirror2" value="mirror2"></el-option>
+					<el-option label="mirror3" value="mirror3"></el-option>
+				</el-select> -->
+			</el-card>
 
-			<el-collapse-item title="本地依赖" name="2">
-				<el-table
-				:data="packageJson.dependency"
-				style="width: 100%">
-				<el-table-column
-				prop="name"
-				label="应用名"
-				width="180">
-			</el-table-column>
-			<el-table-column
-			prop="version"
-			label="版本号"
-			width="180">
-		</el-table-column>
-		<el-table-column
-		prop="description"
-		label="描述">
-	</el-table-column>
-	<el-table-column
-	label="操作"
-	width="80">
-	<template slot-scope="scope">
-		<el-button
-		@click.native.prevent="deleteRow(scope.$index, packageJson.dependency)"
-		type="text"
-		size="small">
-		删除
-	</el-button>
-</template>
-</el-table-column>
-</el-table>
-<div class="table-form-wrap">
-	<el-input placeholder="请填写应用名" v-model="localForm.name" class="w140"></el-input>
-	<el-input placeholder="请填写版本号" v-model="localForm.version" class="w140"></el-input>
-	<el-input placeholder="请填写描述" v-model="localForm.desc" class="w315"></el-input>
-	<el-button type="text" size="small" class="addBtn" @click="addDependency(packageJson.dependency,localForm.name,localForm.version,localForm.desc)">添加</el-button>
-</div>
-</el-collapse-item>
 
-<el-collapse-item title="网络依赖" name="3">
-	<el-table
-	:data="packageJson['net-dependency']"
-	style="width: 100%">
-	<el-table-column
-	prop="name"
-	label="应用名"
-	width="180">
-</el-table-column>
-<el-table-column
-prop="version"
-label="版本号"
-width="180">
-</el-table-column>
-<el-table-column
-prop="description"
-label="描述">
-</el-table-column>
-<el-table-column
-label="操作"
-width="80">
-<template slot-scope="scope">
-	<el-button
-	@click.native.prevent="deleteRow(scope.$index, packageJson['net-dependency'])"
-	type="text"
-	size="small">
-	删除
-</el-button>
-</template>
-</el-table-column>
-</el-table>
-<div class="table-form-wrap">
-	<el-input placeholder="请填写应用名" v-model="netForm.name" class="w140"></el-input>
-	<el-input placeholder="请填写版本号" v-model="netForm.version" class="w140"></el-input>
-	<el-input placeholder="请填写描述" v-model="netForm.desc" class="w315"></el-input>
-	<el-button type="text" size="small" class="addBtn" @click="addDependency(packageJson['net-dependency'],netForm.name,netForm.version,netForm.desc)">添加</el-button>
-</div>
-</el-collapse-item>
-</el-collapse>
-<!-- <span class="basic_mirror">基础镜像选择</span>
-<el-select v-model="basicMirror" class="w140">
-	<el-option label="mirror1" value="mirror1"></el-option>
-	<el-option label="mirror2" value="mirror2"></el-option>
-	<el-option label="mirror3" value="mirror3"></el-option>
-</el-select> -->
-</el-card>
 <div class="btns-wrap">
 	<el-button type="primary" @click="handleCancel">取消</el-button>
 	<el-button type="primary" @click="handleSave" class="fRight">保存</el-button>
@@ -331,20 +245,13 @@ width="80">
 
 <script>
 	import Vue from 'vue'
-	import { Card, Collapse, CollapseItem, Row, Col, CheckboxGroup, MessageBox, Message } from 'element-ui'
+	import { MessageBox, Message } from 'element-ui'
 	import axios from 'axios';
 	import JSZip from 'jszip';
 	import saveAs from 'file-saver';
 		//拖拽
 		import VueDND from 'awe-dnd'
 		Vue.use(VueDND)
-
-		Vue.use(Card);
-		Vue.use(Collapse);
-		Vue.use(CollapseItem);
-		Vue.use(Row);
-		Vue.use(Col);
-		Vue.use(CheckboxGroup);
 		export default {
 			data () {
 				return {
@@ -394,6 +301,25 @@ width="80">
 						'net-dependency':[],
 						'engine':[]
 					},
+					dependencyArr: [{
+						id: 'engine',
+						name: '环境依赖',
+						form: 'envForm',
+						app: '依赖项',
+						placeholder: '请填写依赖项'
+					},{
+						id: 'dependency',
+						name: '本地依赖',
+						form: 'localForm',
+						app: '应用名',
+						placeholder: '请填写应用名'
+					},{
+						id: 'net-dependency',
+						name: '网络依赖',
+						form: 'netForm',
+						app: '应用名',
+						placeholder: '请填写应用名'
+					}],
 					script:{
 						windows:{
 							'pre-install': [],
@@ -421,10 +347,6 @@ width="80">
 						steps: [],
 					},
 					flatTab: '',// 切换平台tab
-					activeNames: [''],
-					envTableData:[],// 环境依赖
-					localTableData: [],// 本地依赖
-					netTableData: [],// 网络依赖
 					envForm: {// 环境依赖添加表单
 						name: '',
 						version: '',
@@ -484,100 +406,100 @@ width="80">
 			},
 			created(){
 				this.$dragging.$on('dragged', ({ value }) => {
-			    })
-			    const serviceFlat = this.$store.state.serviceFlat;
-			    let _this = this;
-			    _this.windowsFlat = serviceFlat === 1 || serviceFlat === 3;
-			    _this.linuxFlat = serviceFlat === 2 || serviceFlat === 3;
-			    _this.flatTab = (_this.windowsFlat) ? 'windows' : 'linux';
-			  	if(_this.windowsFlat){
-			  		_this.packageJson.platforms['windows'] = _this.$store.state.winFlatBit;
-			  		_this.loadWinScripts();
-			  	}
-			  	if(_this.linuxFlat){
-			  		_this.packageJson.platforms['linux'] = _this.$store.state.linuxFlatBit;
-			  		_this.loadLinuxScripts();
-			  	}
-			},
-		methods: {
-		    openZip(event){ //解压本地文件中的zip，获取其json文件的内容。
-		        let file = document.getElementById('openZip').files[0];
+				})
+				const serviceFlat = this.$store.state.serviceFlat;
 				let _this = this;
-		        if(file.name.indexOf('.zip')>=0){ 
-		          _this.wzip = new JSZip();
-		          _this.wzip.loadAsync(file)
-		          .then(function (zip) {
-		          	  if(zip.file("armc_package.json")){
-			          	  zip.file("armc_package.json").async("string").then(function success(content) {
-			                _this.isEdit = true;
-			                let jsonContent = JSON.parse(content);
+				_this.windowsFlat = serviceFlat === 1 || serviceFlat === 3;
+				_this.linuxFlat = serviceFlat === 2 || serviceFlat === 3;
+				_this.flatTab = (_this.windowsFlat) ? 'windows' : 'linux';
+				if(_this.windowsFlat){
+					_this.packageJson.platforms['windows'] = _this.$store.state.winFlatBit;
+					_this.loadWinScripts();
+				}
+				if(_this.linuxFlat){
+					_this.packageJson.platforms['linux'] = _this.$store.state.linuxFlatBit;
+					_this.loadLinuxScripts();
+				}
+			},
+			methods: {
+		    openZip(event){ //解压本地文件中的zip，获取其json文件的内容。
+		    	let file = document.getElementById('openZip').files[0];
+		    	let _this = this;
+		    	if(file.name.indexOf('.zip')>=0){ 
+		    		_this.wzip = new JSZip();
+		    		_this.wzip.loadAsync(file)
+		    		.then(function (zip) {
+		    			if(zip.file("armc_package.json")){
+		    				zip.file("armc_package.json").async("string").then(function success(content) {
+		    					_this.isEdit = true;
+		    					let jsonContent = JSON.parse(content);
 			                //新的打包文件新增package.json版本文件
 			                _this.wzip.file(`armc_package_v${jsonContent['config-version']}.json`, content);
 			                for(let i in jsonContent.script){ //给script赋值，每一项附件增加id为"localFile"
-								for(let x in jsonContent.script[i]){
-									for(let j in jsonContent.script[i][x]){
-										jsonContent.script[i][x][j] = {
-											id: 'localFile',
-											name: jsonContent.script[i][x][j]['name'].substring(14),
-											desc: jsonContent.script[i][x][j]['description']
-										}
-									}
-								}
-							}
+			                	for(let x in jsonContent.script[i]){
+			                		for(let j in jsonContent.script[i][x]){
+			                			jsonContent.script[i][x][j] = {
+			                				id: 'localFile',
+			                				name: jsonContent.script[i][x][j]['name'].substring(14),
+			                				desc: jsonContent.script[i][x][j]['description']
+			                			}
+			                		}
+			                	}
+			                }
 			                _this.packageJson = jsonContent;
 			                _this.packageJson['config-version'] = parseInt(_this.packageJson['config-version']) + 1;
-							_this.script = jsonContent.script;
-							_this.windowsFlat = (jsonContent.platforms.windows && jsonContent.platforms.windows.length>0);
-							_this.linuxFlat = (jsonContent.platforms.linux && jsonContent.platforms.linux.length>0);
-							if(_this.windowsFlat && _this.scriptsListWindows.length === 0){
-						  		_this.loadWinScripts();
-						  	}
-						  	if(_this.linuxFlat && _this.scriptsListLinux.length === 0){
-						  		_this.loadLinuxScripts();
-						  	}
-							_this.wzipName = file.name.slice(0,-4);
-			              }, function error(e) {
-			              	
-			              });
-		          	  }else{
-		          	  	Message.error('所选解压文件中没有armc_package.json文件!');
-		          	  }
-		          }, function (e) {
+			                _this.script = jsonContent.script;
+			                _this.windowsFlat = (jsonContent.platforms.windows && jsonContent.platforms.windows.length>0);
+			                _this.linuxFlat = (jsonContent.platforms.linux && jsonContent.platforms.linux.length>0);
+			                if(_this.windowsFlat && _this.scriptsListWindows.length === 0){
+			                	_this.loadWinScripts();
+			                }
+			                if(_this.linuxFlat && _this.scriptsListLinux.length === 0){
+			                	_this.loadLinuxScripts();
+			                }
+			                _this.wzipName = file.name.slice(0,-4);
+			            }, function error(e) {
 
-		          });
-		        }else{
-		          Message.error('请选择.zip文件!');
-		        }
+			            });
+		    			}else{
+		    				Message.error('所选解压文件中没有armc_package.json文件!');
+		    			}
+		    		}, function (e) {
+
+		    		});
+		    	}else{
+		    		Message.error('请选择.zip文件!');
+		    	}
 		    },
 			loadWinScripts(){//拉取服务器中windows执行脚本列表
 				let _this = this;
-				axios.get('http://cetc-demo.dalianyun.com/api/v1/default/scripts?platform=WINDOWS')
-					  .then(function (response) {
-					    if(response.status === 200){
-					    	for(var i in response.data) {
-							     let obj = {id: i, name: response.data[i]}
-							     _this.scriptsListWindows.push(obj);
-							}
-					    }
-					  })
-					  .catch(function (response) {
-					    console.log(response);
-					  });
+				axios.get('/api/v1/default/scripts?platform=WINDOWS')
+				.then(function (response) {
+					if(response.status === 200){
+						for(var i in response.data) {
+							let obj = {id: i, name: response.data[i]}
+							_this.scriptsListWindows.push(obj);
+						}
+					}
+				})
+				.catch(function (response) {
+					console.log(response);
+				});
 			},
 			loadLinuxScripts(){//拉取服务器中linux执行脚本列表
 				let _this = this;
-			    axios.get('http://cetc-demo.dalianyun.com/api/v1/default/scripts?platform=LINUX')
-					  .then(function (response) {
-					    if(response.status === 200){
-					    	for(var i in response.data) {
-							     let obj = {id: i, name: response.data[i]}
-							     _this.scriptsListLinux.push(obj);
-							}
-					    }
-					  })
-					  .catch(function (response) {
-					    console.log(response);
-					  });
+				axios.get('/api/v1/default/scripts?platform=LINUX')
+				.then(function (response) {
+					if(response.status === 200){
+						for(var i in response.data) {
+							let obj = {id: i, name: response.data[i]}
+							_this.scriptsListLinux.push(obj);
+						}
+					}
+				})
+				.catch(function (response) {
+					console.log(response);
+				});
 			},
 			addLocalFiles(){
 				var _this = this;
@@ -596,7 +518,7 @@ width="80">
 			},
 			addLocalScript(i){
 				let fileList =  i===1 ? document.getElementById('win_script_input').files
-									  : document.getElementById('lin_script_input').files;
+				: document.getElementById('lin_script_input').files;
 				if(fileList && fileList.length){
 					let file = {
 						id: 'localFile',
@@ -674,25 +596,25 @@ width="80">
 			},
 			handleSave(){
 				this.packageJson.script = { //重置packageJson中的script
-						windows:{
-							'pre-install': [],
-							'post-install': [],
-							'pre-start': [],
-							'start': [],
-							'post-start': [],
-							'pre-uninstall': [],
-							'post-uninstall': []
-						},
-						linux:{
-							'pre-install': [],
-							'post-install': [],
-							'pre-start': [],
-							'start': [],
-							'post-start': [],
-							'pre-uninstall': [],
-							'post-uninstall': []
-						}
-					};
+					windows:{
+						'pre-install': [],
+						'post-install': [],
+						'pre-start': [],
+						'start': [],
+						'post-start': [],
+						'pre-uninstall': [],
+						'post-uninstall': []
+					},
+					linux:{
+						'pre-install': [],
+						'post-install': [],
+						'pre-start': [],
+						'start': [],
+						'post-start': [],
+						'pre-uninstall': [],
+						'post-uninstall': []
+					}
+				};
 				let _this = this;
 				if(!_this.wzip){
 					return Message.error('请选择本地文件路径!');
@@ -718,22 +640,22 @@ width="80">
 					}
 				}
 				let choosenScripts = _this.uniqueArr(scriptsArr);
-	
+
 				let promiseArr = [];
 				for(let k in choosenScripts){
 					let p = new Promise(function(resolve,reject){
-						axios.get(`http://cetc-demo.dalianyun.com/api/v1/script/${choosenScripts[k]}/stream-content`)
-						  .then(function (response) {
-						    if(response.status === 200){
-						    	_this.wzip.file(`armc_script/${response.data.fileName}`, response.data.fileContent, {base64: true});
+						axios.get(`/api/v1/script/${choosenScripts[k]}/stream-content`)
+						.then(function (response) {
+							if(response.status === 200){
+								_this.wzip.file(`armc_script/${response.data.fileName}`, response.data.fileContent, {base64: true});
 						    	// _this.wzip.file(`armc_script/${response.data.fileName}`, 'c3RhcnQgbXlzcWw=', {base64: true});
 						    	resolve('ok');
 						    }
-						  })
-						  .catch(function (response) {
-						    console.log(response);
-						    reject('err');
-						  });
+						})
+						.catch(function (response) {
+							console.log(response);
+							reject('err');
+						});
 					})
 					promiseArr.push(p);
 				}
@@ -746,10 +668,10 @@ width="80">
 					_this.wzip.file('armc_package.json', JSON.stringify(_this.packageJson));
 					_this.wzip.generateAsync({type:"blob"})
 					.then(function (content) {
-		              saveAs(content, `${_this.wzipName}.zip`);
-		          	}); 
+						saveAs(content, `${_this.wzipName}.zip`);
+					}); 
 				}).catch((error) => {
-				  console.log(error)
+					console.log(error)
 				})
 			},
 			uniqueArr(arr){// 数组去重
@@ -762,281 +684,281 @@ width="80">
 		         /**
 		          * 将对象转化为string
 		          */
-		         if (typeof json !== 'string') {
-		             json = JSON.stringify(json);
-		         }
-		         json = json.replace(/([\{\}])/g, '\r\n$1\r\n')
-		                     .replace(/([\[\]])/g, '\r\n$1\r\n')
-		                     .replace(/(\,)/g, '$1\r\n')
-		                     .replace(/(\r\n\r\n)/g, '\r\n')
-		                     .replace(/\r\n\,/g, ',');
+		          if (typeof json !== 'string') {
+		          	json = JSON.stringify(json);
+		          }
+		          json = json.replace(/([\{\}])/g, '\r\n$1\r\n')
+		          .replace(/([\[\]])/g, '\r\n$1\r\n')
+		          .replace(/(\,)/g, '$1\r\n')
+		          .replace(/(\r\n\r\n)/g, '\r\n')
+		          .replace(/\r\n\,/g, ',');
 		         /** 
 		          * 根据split生成数据进行遍历，一行行判断是否增减PADDING
 		          */
-		        (json.split('\r\n')).forEach(function (node, index) {
-		             var indent = 0,
-		                 padding = '';
-		             if (node.match(/\{$/) || node.match(/\[$/)) indent = 1;
-		             else if (node.match(/\}/) || node.match(/\]/))  padIdx = padIdx !== 0 ? --padIdx : padIdx;
-		             else    indent = 0;
-		             for (var i = 0; i < padIdx; i++)    padding += PADDING;
-		             formatted += padding + node + '\r\n';
-		             padIdx += indent;
-		             console.log('index:'+index+',indent:'+indent+',padIdx:'+padIdx+',node-->'+node);
-		         });
-		         return formatted;
-            }
+		          (json.split('\r\n')).forEach(function (node, index) {
+		          	var indent = 0,
+		          	padding = '';
+		          	if (node.match(/\{$/) || node.match(/\[$/)) indent = 1;
+		          		else if (node.match(/\}/) || node.match(/\]/))  padIdx = padIdx !== 0 ? --padIdx : padIdx;
+		          		else    indent = 0;
+		          		for (var i = 0; i < padIdx; i++)    padding += PADDING;
+		          			formatted += padding + node + '\r\n';
+		          		padIdx += indent;
+		          		console.log('index:'+index+',indent:'+indent+',padIdx:'+padIdx+',node-->'+node);
+		          	});
+		          return formatted;
+		      }
+		  }
+		}
+	</script>
+
+	<!-- Add "scoped" attribute to limit CSS to this component only -->
+	<style lang="scss">
+	$gray: #909399;
+	.clearfix:after{
+		display: block;
+		clear: both;
+		content: "";
+		visibility: hidden;
+		height: 0;
+	}
+	.clearfix{
+		zoom:1;
+	}
+	.open-zip-box{
+		width: 800px;
+		height: 35px;
+		margin: 0 auto;
+
+		.open-zip-title{
+			float: left;
+			margin: 0;
+			height: 35px;
+			line-height: 35px;
+		}
+		.openZip{
+			cursor: pointer;
+			display: inline-block;
+			float: right;
+			color: #fff;
+			background-color: #409EFF;
+			border-color: #409EFF;
+			text-align: center;
+			line-height: 1;
+			font-weight: 500;
+			font-size: 14px;
+			padding: 10px 20px;
+			border-radius: 4px;
 		}
 	}
-</script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style lang="scss">
-$gray: #909399;
-.clearfix:after{
-	display: block;
-	clear: both;
-	content: "";
-	visibility: hidden;
-	height: 0;
-}
-.clearfix{
-	zoom:1;
-}
-.open-zip-box{
-	width: 800px;
-	height: 35px;
-	margin: 0 auto;
-
-	.open-zip-title{
-		float: left;
-		margin: 0;
-		height: 35px;
-		line-height: 35px;
+	.hide-inputs{
+		left:-9999px;
+		position:absolute;
 	}
-	.openZip{
-		cursor: pointer;
-		display: inline-block;
-		float: right;
-		color: #fff;
-		background-color: #409EFF;
-		border-color: #409EFF;
-		text-align: center;
-		line-height: 1;
-		font-weight: 500;
-		font-size: 14px;
-		padding: 10px 20px;
-		border-radius: 4px;
+	.input-type-file{
+		position: relative;
+		.show-file-name{
+			margin: 0;
+			position: absolute;
+			z-index: 999;
+			left: 15px;
+		}
+		.openZip{
+			cursor: pointer;
+			display: inline-block;
+			float: right;
+			color: #fff;
+			background-color: #409EFF;
+			border-color: #409EFF;
+			text-align: center;
+			line-height: 1;
+			font-size: 14px;
+			padding: 6px;
+			border-radius: 4px;
+			margin-right: 10px;
+		}
+	} 
+	.multiple-file{
+		.multiple-file-label{
+			position: absolute;
+			top: 4px;
+			right:3px;
+		}
 	}
-}
-.hide-inputs{
-	left:-9999px;
-	position:absolute;
-}
-.input-type-file{
-	position: relative;
-	.show-file-name{
-		margin: 0;
-		position: absolute;
-		z-index: 999;
-		left: 15px;
+	.box-card {
+		width: 800px;
+		margin: 10px auto 30px;
 	}
-    .openZip{
-    	cursor: pointer;
-		display: inline-block;
-		float: right;
-		color: #fff;
-		background-color: #409EFF;
-		border-color: #409EFF;
-		text-align: center;
-		line-height: 1;
-		font-size: 14px;
-		padding: 6px;
-		border-radius: 4px;
-		margin-right: 10px;
-    }
-} 
-.multiple-file{
-	.multiple-file-label{
-		position: absolute;
-		top: 4px;
-		right:3px;
-	}
-}
-.box-card {
-	width: 800px;
-	margin: 10px auto 30px;
-}
-.scripts-card{
-	min-height: 640px;
+	.scripts-card{
+		min-height: 640px;
 
-	.scripts-box{
-		min-height: 550px;
-		margin: 5px;
-		border: 1px solid $gray;
-		text-align: center;
+		.scripts-box{
+			min-height: 550px;
+			margin: 5px;
+			border: 1px solid $gray;
+			text-align: center;
 
-		.scripts-ul{
-			list-style: none;
-			padding: 0;
-			li{
-				cursor: pointer;
-				font-size: 14px;
-				&:hover{
-					color: #409EFF;
+			.scripts-ul{
+				list-style: none;
+				padding: 0;
+				li{
+					cursor: pointer;
+					font-size: 14px;
+					&:hover{
+						color: #409EFF;
+					}
 				}
 			}
-		}
-		.scripts-title{
-			height: 40px;
-			line-height: 40px;
-			width: 90%;
-			margin: 0 auto;
-			font-size: 14px;
-			font-weight: 700;
-			border-bottom: 1px solid $gray;
-			color: $gray;
-		}
-	}	
-
-	.scripts-choosen-box{
-		border: 1px solid $gray;
-		min-height: 550px;
-		margin-top: 5px;
-
-		.scripts-choosen-title{
-			height: 40px;
-			line-height: 40px;
-			font-size: 14px;
-			font-weight: 700;
-			color: $gray;
-		}
-		.scripts-choosen-title span{
-			margin-left: 100px;
-		}
-		.scripts-choosen{
-			margin-bottom: 10px;
-
-			.scripts-steps{
-				width: 90px;
-				text-indent: 20px;
-				font-size: 15px;
-				margin-top: 10px;
-				float: left;
-			}
-			.scripts-files{
-				padding: 5px;
-				min-height: 50px;
+			.scripts-title{
+				height: 40px;
+				line-height: 40px;
+				width: 90%;
+				margin: 0 auto;
 				font-size: 14px;
-				width: 420px;
-				float: left;
-				border: 1px solid $gray;
-				p{
-					margin: 3px 0;
+				font-weight: 700;
+				border-bottom: 1px solid $gray;
+				color: $gray;
+			}
+		}	
+
+		.scripts-choosen-box{
+			border: 1px solid $gray;
+			min-height: 550px;
+			margin-top: 5px;
+
+			.scripts-choosen-title{
+				height: 40px;
+				line-height: 40px;
+				font-size: 14px;
+				font-weight: 700;
+				color: $gray;
+			}
+			.scripts-choosen-title span{
+				margin-left: 100px;
+			}
+			.scripts-choosen{
+				margin-bottom: 10px;
+
+				.scripts-steps{
+					width: 90px;
+					text-indent: 20px;
+					font-size: 15px;
+					margin-top: 10px;
 					float: left;
 				}
-				.scripts-files-name{
-					width: 140px;
-					margin-right: 10px;
-					word-wrap: break-word;
-				}
-				.scripts-files-desc{
-					width: 150px;
-					margin-right: 10px;
-					word-wrap: break-word;
-				}
-				.scripts-files-operate{
-					width: 90px;
-					span{
-						cursor: pointer;
+				.scripts-files{
+					padding: 5px;
+					min-height: 50px;
+					font-size: 14px;
+					width: 420px;
+					float: left;
+					border: 1px solid $gray;
+					p{
+						margin: 3px 0;
+						float: left;
+					}
+					.scripts-files-name{
+						width: 140px;
+						margin-right: 10px;
+						word-wrap: break-word;
+					}
+					.scripts-files-desc{
+						width: 150px;
+						margin-right: 10px;
+						word-wrap: break-word;
+					}
+					.scripts-files-operate{
+						width: 90px;
+						span{
+							cursor: pointer;
+							&:hover{
+								color: #409EFF;
+							}
+						}
+					}
+					.file-item{
 						&:hover{
-							color: #409EFF;
+							background-color: #ecf5ff;
 						}
 					}
 				}
-				.file-item{
-					&:hover{
-						background-color: #ecf5ff;
-					}
-				}
 			}
 		}
 	}
-}
 
-.el-form-item {
-	margin-bottom: 15px;
-}
-.el-input__inner{
-	height: 34px;
-}
-.el-card__header{
-	color: $gray;
-	font-weight: 700;
-}
-.el-form-item__label, .el-form-item__content, .el-input__inner{
-	line-height: 34px;
-}
-.file-input{
-	input{
-		line-height: 32px;
+	.el-form-item {
+		margin-bottom: 15px;
 	}
-}
-.dependency-card{
-	.el-card__body{
-		padding-top: 0;
+	.el-input__inner{
+		height: 34px;
 	}
-	.el-collapse{
-		border-top-width: 0;
-	}
-	.el-collapse-item__wrap{
-		padding-left: 5px;
-		border-top: 1px solid #ebeef5;
-	}
-	.el-collapse-item__header{
+	.el-card__header{
 		color: $gray;
-		text-indent: 5px;
-		font-size: 15px;
 		font-weight: 700;
 	}
-}
-.table-form-wrap{
-	margin-top: 20px;
-}
-.w140{
-	width: 140px;
-	margin-right: 38px;
-}
-.w315{
-	width: 280px;
-}
-.fRight{
-	float: right;
-}
-.addBtn{
-	margin-left: 38px;
-}
-.basic_mirror{
-	display: inline-block;
-	height: 68px;
-	line-height: 68px;
-	font-size: 15px;
-	font-weight: 700;
-	color: $gray;
-	margin: 0 20px 0 4px;
-}
-.btns-wrap{
-	width: 226px;
-	margin: 0 auto;
-}
-.script-dialog{
-	.el-input{
-		width: 400px;
+	.el-form-item__label, .el-form-item__content, .el-input__inner{
+		line-height: 34px;
 	}
-	.el-checkbox{
-		width: 80px;
-		margin-right: 30px;
-		margin-left: 0;
+	.file-input{
+		input{
+			line-height: 32px;
+		}
 	}
-}
+	.dependency-card{
+		.el-card__body{
+			padding-top: 0;
+		}
+		.el-collapse{
+			border-top-width: 0;
+		}
+		.el-collapse-item__wrap{
+			padding-left: 5px;
+			border-top: 1px solid #ebeef5;
+		}
+		.el-collapse-item__header{
+			color: $gray;
+			text-indent: 5px;
+			font-size: 15px;
+			font-weight: 700;
+		}
+	}
+	.table-form-wrap{
+		margin-top: 20px;
+	}
+	.w140{
+		width: 140px;
+		margin-right: 38px;
+	}
+	.w315{
+		width: 280px;
+	}
+	.fRight{
+		float: right;
+	}
+	.addBtn{
+		margin-left: 38px;
+	}
+	.basic_mirror{
+		display: inline-block;
+		height: 68px;
+		line-height: 68px;
+		font-size: 15px;
+		font-weight: 700;
+		color: $gray;
+		margin: 0 20px 0 4px;
+	}
+	.btns-wrap{
+		width: 226px;
+		margin: 0 auto;
+	}
+	.script-dialog{
+		.el-input{
+			width: 400px;
+		}
+		.el-checkbox{
+			width: 80px;
+			margin-right: 30px;
+			margin-left: 0;
+		}
+	}
 </style>

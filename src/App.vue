@@ -38,25 +38,8 @@
 
 <script>
   import Vue from 'vue'
-  import { 
-    Menu,
-    Submenu,
-    MenuItem,
-    MenuItemGroup,
-    Container,
-    Header,
-    Aside,
-    Main, } from 'element-ui'
   import 'normalize-css'
 
-  Vue.use(Menu);
-  Vue.use(Submenu);
-  Vue.use(MenuItem);
-  Vue.use(MenuItemGroup);
-  Vue.use(Container);
-  Vue.use(Header);
-  Vue.use(Aside);
-  Vue.use(Main);
   export default {
     name: 'App',
     methods: {

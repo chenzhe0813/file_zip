@@ -15,8 +15,7 @@
 
 <script>
 	import Vue from 'vue'
-	import { Checkbox, Message } from 'element-ui'
-	Vue.use(Checkbox)
+	import { Message } from 'element-ui'
 	export default {
 	  data () {
 	    return {
