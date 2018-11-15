@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3>选择服务包平台</h3>
+    <h3>{{ title }}</h3>
     <div class="checkbox-wrap">
       <el-checkbox v-model="windowsFlat32" label="Windows x86(32位)" border></el-checkbox>
       <el-checkbox v-model="linuxFlat32" label="Linux x86(32位)" border class="label-right"></el-checkbox>
@@ -19,6 +19,7 @@
 	export default {
 	  data () {
 	    return {
+	      title: '选择服务包平台',
 	      windowsFlat32: true,
 	      windowsFlat64: false,
 	      linuxFlat32: false,

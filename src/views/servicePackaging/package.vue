@@ -1,7 +1,7 @@
 	<template>
 		<div>
 			<div class="open-zip-box clearfix">
-				<h3 class="open-zip-title">服务打包</h3>
+				<h3 class="open-zip-title">{{ title }}</h3>
 				<label id="realBtn" class="btn">
 					<input type="file" class="hide-inputs" id="openZip" name="file" accept="application/zip" @change='openZip()'>
 					<span class="openZip">打开</span>
@@ -245,6 +245,7 @@
 
 <script>
 	import Vue from 'vue'
+	import { mapGetters } from 'vuex'
 	import { MessageBox, Message } from 'element-ui'
 	import axios from 'axios';
 	import JSZip from 'jszip';
@@ -255,6 +256,7 @@
 		export default {
 			data () {
 				return {
+					title: '服务打包',
 					isEdit: false, // 是否为打开之前的zip文件，是 true ，否 false。
 					windowsFlat: true,
 					linuxFlat: false,
@@ -404,20 +406,32 @@
 					wzipName: '请选择文件',
 				}
 			},
+			computed: {
+			    ...mapGetters({
+			      serviceFlat:'serviceFlatGetter',
+			      winFlatBit:'winFlatBitGetter',
+			      linuxFlatBit:'linuxFlatBitGetter',
+			    })
+			},
 			created(){
 				this.$dragging.$on('dragged', ({ value }) => {
 				})
-				const serviceFlat = this.$store.state.serviceFlat;
+				const serviceFlat = this.serviceFlat;
+				const winFlatBit = this.winFlatBit;
+				const linuxFlatBit = this.linuxFlatBit;
+				console.warn(serviceFlat)
+				console.warn(winFlatBit)
+				console.warn(linuxFlatBit)
 				let _this = this;
 				_this.windowsFlat = serviceFlat === 1 || serviceFlat === 3;
 				_this.linuxFlat = serviceFlat === 2 || serviceFlat === 3;
 				_this.flatTab = (_this.windowsFlat) ? 'windows' : 'linux';
 				if(_this.windowsFlat){
-					_this.packageJson.platforms['windows'] = _this.$store.state.winFlatBit;
+					_this.packageJson.platforms['windows'] = _this.winFlatBit;
 					_this.loadWinScripts();
 				}
 				if(_this.linuxFlat){
-					_this.packageJson.platforms['linux'] = _this.$store.state.linuxFlatBit;
+					_this.packageJson.platforms['linux'] = _this.linuxFlatBit;
 					_this.loadLinuxScripts();
 				}
 			},

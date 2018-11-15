@@ -1,31 +1,29 @@
 <template>
   <div id="app">
     <el-container>
-      <el-header height="100px">
-        <img src="./assets/logo.png">
-        <p>微服务开发向导</p>
+      <el-header>
+        <p>{{ title }}</p>
       </el-header>
-      <el-container style="position: absolute;bottom: 0;top: 100px;width: 100%;">
+      <el-container style="position: absolute;bottom: 0;top: 63px;width: 100%;">
         <el-aside width="250px">
-          <el-menu
-            :default-active="$route.path"
-            class="el-menu-vertical-demo"
-            @open="handleOpen"
-            @close="handleClose"
-            router>
-            <el-submenu index="1">
-              <template slot="title">
-                <span>服务模板</span>
-              </template>
-              <el-menu-item index="/template">模板生成</el-menu-item>
-              <el-menu-item index="/templateAdmin">模板管理</el-menu-item>
-            </el-submenu>
-            <el-menu-item index="/contractGeneration">
-              契约生成
-            </el-menu-item>
-            <el-menu-item index="/servicePackagingIndex">
-              服务打包
-            </el-menu-item>
+          <el-menu class="el-menu-vertical-demo" router :default-active="sideActive" :default-openeds="openedMenus">
+            <template v-for="item in menus">
+              <el-menu-item class="father-menu" :index="item.path" :key="item.path" v-if="item.path!=='/' && !item.children && !item.hide">
+                <i :class="item.icon"></i>
+                <span>{{ item.sideName }}</span>
+              </el-menu-item>
+              <el-submenu :index="item.sideName" :key="item.sideName" v-if="item.children && item.children.length > 1 && !item.hide">
+                <template slot="title">
+                  <i :class="item.icon"></i>
+                  <span>{{ item.sideName }}</span>
+                </template>
+                <template v-for="child in item.children" v-if="!child.hide">
+                  <el-menu-item :index="child.path" :key="child.path">
+                    <span>{{ child.sideName }}</span>
+                  </el-menu-item>
+                </template>
+              </el-submenu>
+            </template>
           </el-menu>
         </el-aside>
         <el-main>
@@ -42,12 +40,18 @@
 
   export default {
     name: 'App',
-    methods: {
-      handleOpen(key, keyPath) {
-        console.log(key, keyPath);
+    data() {
+      return {
+        title: '微服务开发向导',
+        openedMenus: ['服务模板'],
+      }
+    },
+    computed: {
+      sideActive () {
+        return this.$route.meta.sideActive || this.$route.path
       },
-      handleClose(key, keyPath) {
-        console.log(key, keyPath);
+      menus () {
+        return this.$router.options.routes
       }
     }
   }
@@ -64,37 +68,49 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 10%;
-  right: 10%;
+  left: 0;
+  right: 0;
 }
 .el-header, .el-footer {
     color: #333;
     line-height: 60px;
     border-bottom: 1px solid #ccc;
   }
-  .el-header img{
-    float: left;
-    margin: 26px 20px 0;
+  .el-header{
+    background: #1867c0;
+    box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2), 0px 2px 4px 0px rgba(0,0,0,0.14);
   }
   .el-header p{
-    color: #000;
-    font-size: 22px;
-    font-weight: 700;
+    color: #FFF;
+    font-size: 18px;
     float: left;
+    margin: 0 0 0 50px;
   }
   
   .el-aside {
     color: #333;
-    text-align: center;
-    border-right: 1px solid #ccc;
+    text-align: left;
+    box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2);
   }
   
   .el-main {
     color: #333;
     padding-bottom: 30px;
   }
+  .el-menu-item span {
+    margin-left: 25px;
+  }
+  .el-submenu__title span {
+    margin-left: 25px;
+  }
+  .el-menu .el-menu--inline li span {
+    padding-left: 3px;
+  }
 
-  .el-submenu .el-menu-item{
-    text-indent: 20px;
+  .el-submenu.is-opened {
+    border-bottom: 1px solid #E0E0E0;
+  }
+  .iconfont{
+
   }
 </style>
