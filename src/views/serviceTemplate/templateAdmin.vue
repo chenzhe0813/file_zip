@@ -143,7 +143,7 @@
 .template-admin{
 	.box-card {
 		width: 800px;
-		margin: 10px auto 30px;
+		margin: 10px 50px 30px;
 	}
 	.addItemBtn{
 		float: right;

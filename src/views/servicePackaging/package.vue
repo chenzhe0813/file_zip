@@ -419,9 +419,6 @@
 				const serviceFlat = this.serviceFlat;
 				const winFlatBit = this.winFlatBit;
 				const linuxFlatBit = this.linuxFlatBit;
-				console.warn(serviceFlat)
-				console.warn(winFlatBit)
-				console.warn(linuxFlatBit)
 				let _this = this;
 				_this.windowsFlat = serviceFlat === 1 || serviceFlat === 3;
 				_this.linuxFlat = serviceFlat === 2 || serviceFlat === 3;
@@ -443,12 +440,18 @@
 		    		_this.wzip = new JSZip();
 		    		_this.wzip.loadAsync(file)
 		    		.then(function (zip) {
-		    			if(zip.file("armc_package.json")){
-		    				zip.file("armc_package.json").async("string").then(function success(content) {
+		    			let fileDir = '';
+		    			for(let i in zip.files){
+		    				fileDir = zip.files[i].name;
+		    				break;
+		    			}
+		    			const fileDirStr = fileDir.split('/')[0];
+		    			if(zip.file(`${fileDirStr}/armc_package.json`)){
+		    				zip.file(`${fileDirStr}/armc_package.json`).async("string").then(function success(content) {
 		    					_this.isEdit = true;
 		    					let jsonContent = JSON.parse(content);
 			                //新的打包文件新增package.json版本文件
-			                _this.wzip.file(`armc_package_v${jsonContent['config-version']}.json`, content);
+			                _this.wzip.file(`${fileDirStr}/armc_package_v${jsonContent['config-version']}.json`, content);
 			                for(let i in jsonContent.script){ //给script赋值，每一项附件增加id为"localFile"
 			                	for(let x in jsonContent.script[i]){
 			                		for(let j in jsonContent.script[i][x]){
@@ -471,7 +474,7 @@
 			                if(_this.linuxFlat && _this.scriptsListLinux.length === 0){
 			                	_this.loadLinuxScripts();
 			                }
-			                _this.wzipName = file.name.slice(0,-4);
+			                _this.wzipName = fileDirStr;
 			            }, function error(e) {
 
 			            });
@@ -661,7 +664,7 @@
 						axios.get(`/api/v1/script/${choosenScripts[k]}/stream-content`)
 						.then(function (response) {
 							if(response.status === 200){
-								_this.wzip.file(`armc_script/${response.data.fileName}`, response.data.fileContent, {base64: true});
+								_this.wzip.file(`${_this.wzipName}/armc_script/${response.data.fileName}`, response.data.fileContent, {base64: true});
 						    	// _this.wzip.file(`armc_script/${response.data.fileName}`, 'c3RhcnQgbXlzcWw=', {base64: true});
 						    	resolve('ok');
 						    }
@@ -677,9 +680,9 @@
 				// 遍历选择的执行脚本文件 end
 				Promise.all(promiseArr).then((result) => {
 					_this.localScriptsWzip.map((item)=>{
-						_this.wzip.file(`armc_script/${item.name}`, item)
+						_this.wzip.file(`${_this.wzipName}/armc_script/${item.name}`, item)
 					})
-					_this.wzip.file('armc_package.json', JSON.stringify(_this.packageJson));
+					_this.wzip.file(`${_this.wzipName}/armc_package.json`, JSON.stringify(_this.packageJson));
 					_this.wzip.generateAsync({type:"blob"})
 					.then(function (content) {
 						saveAs(content, `${_this.wzipName}.zip`);
