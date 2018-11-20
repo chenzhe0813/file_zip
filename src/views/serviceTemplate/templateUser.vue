@@ -16,7 +16,7 @@
 	    </el-form-item>
 	  	<el-form-item label="选择主题">
 		    <el-select v-model="form.type" placeholder="请选择开发语言">
-		      <el-option label="111" value="1"></el-option>
+		      <el-option class="select-options" label="主题微服务（描述描述描述描述描述描述描述描述描述）" title="主题微服务（描述描述描述描述描述描述描述描述描述）" value="1"></el-option>
 		      <el-option label="222" value="2"></el-option>
 		      <el-option label="333" value="3"></el-option>
 		    </el-select>
@@ -85,5 +85,11 @@ $fontColor: #909399;
 	.tabBox{
 		width: 730px;
 	}
+}
+.select-options{
+	max-width: 350px;
+	white-space:nowrap;
+	overflow:hidden; 
+	text-overflow:ellipsis;
 }
 </style>
