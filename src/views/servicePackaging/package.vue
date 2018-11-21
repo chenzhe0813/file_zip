@@ -248,8 +248,9 @@
 	import { mapGetters } from 'vuex'
 	import { MessageBox, Message } from 'element-ui'
 	import axios from 'axios';
-	import JSONP from 'node-jsonp';
 	import JSZip from 'jszip';
+	import originWinScripts from '@s/windowsScript/script.json';
+	import originLinScripts from '@s/linuxScript/script.json';
 	import saveAs from 'file-saver';
 		//拖拽
 		import VueDND from 'awe-dnd'
@@ -491,56 +492,21 @@
 		    },
 			loadWinScripts(){//拉取服务器中windows执行脚本列表
 				let _this = this;
-				JSONP('static/windowsScript/script.json',(response) => {
-					console.log(11111111111);
-				  	console.log(response);
-				 //  	if(response.status === 200){
-					// 	for(let i=0; i<response.data.length; i++) {
-					// 		let obj = {id: 'originFile', name: response.data[i]}
-					// 		_this.scriptsListWindows.push(obj);
-					// 	}
-					// }
-				});
-				// axios.get('static/windowsScript/script.json')
-				// .then(function (response) {
-				// 	if(response.status === 200){
-				// 		for(let i=0; i<response.data.length; i++) {
-				// 			let obj = {id: 'originFile', name: response.data[i]}
-				// 			_this.scriptsListWindows.push(obj);
-				// 		}
-				// 	}
-				// })
-				// .catch(function (response) {
-				// 	console.log(response);
-				// });
+			  	if(originWinScripts.length > 0){
+					for(let i=0; i<originWinScripts.length; i++) {
+						let obj = {id: 'originFile', name: originWinScripts[i]}
+						_this.scriptsListWindows.push(obj);
+					}
+				}
 			},
 			loadLinuxScripts(){//拉取服务器中linux执行脚本列表
 				let _this = this;
-				JSONP('static/linuxScript/script.json', (err, response) => {
-				  if (err) {
-				    console.error(err.message);
-				  } else {
-				  	console.log(response);
-				  	if(response.status === 200){
-						for(let i=0; i<response.data.length; i++) {
-							let obj = {id: 'originFile', name: response.data[i]}
-							_this.scriptsListLinux.push(obj);
-						}
+			  	if(originLinScripts.length > 0){
+					for(let i=0; i<originLinScripts.length; i++) {
+						let obj = {id: 'originFile', name: originLinScripts[i]}
+						_this.scriptsListLinux.push(obj);
 					}
-				  }
-				});
-				// axios.get('static/linuxScript/script.json')
-				// .then(function (response) {
-				// 	if(response.status === 200){
-				// 		for(let i=0; i<response.data.length; i++) {
-				// 			let obj = {id: 'originFile', name: response.data[i]}
-				// 			_this.scriptsListLinux.push(obj);
-				// 		}
-				// 	}
-				// })
-				// .catch(function (response) {
-				// 	console.log(response);
-				// });
+				}
 			},
 			addLocalFiles(){
 				var _this = this;
