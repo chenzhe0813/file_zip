@@ -43,7 +43,7 @@
     data() {
       return {
         title: '微服务开发向导',
-        openedMenus: ['服务模板'],
+        openedMenus: [],
       }
     },
     computed: {

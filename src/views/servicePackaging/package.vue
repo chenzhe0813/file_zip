@@ -248,6 +248,7 @@
 	import { mapGetters } from 'vuex'
 	import { MessageBox, Message } from 'element-ui'
 	import axios from 'axios';
+	import JSONP from 'node-jsonp';
 	import JSZip from 'jszip';
 	import saveAs from 'file-saver';
 		//拖拽
@@ -490,33 +491,56 @@
 		    },
 			loadWinScripts(){//拉取服务器中windows执行脚本列表
 				let _this = this;
-				axios.get('/api/v1/default/scripts?platform=WINDOWS')
-				.then(function (response) {
-					if(response.status === 200){
-						for(var i in response.data) {
-							let obj = {id: i, name: response.data[i]}
-							_this.scriptsListWindows.push(obj);
-						}
-					}
-				})
-				.catch(function (response) {
-					console.log(response);
+				JSONP('static/windowsScript/script.json',(response) => {
+					console.log(11111111111);
+				  	console.log(response);
+				 //  	if(response.status === 200){
+					// 	for(let i=0; i<response.data.length; i++) {
+					// 		let obj = {id: 'originFile', name: response.data[i]}
+					// 		_this.scriptsListWindows.push(obj);
+					// 	}
+					// }
 				});
+				// axios.get('static/windowsScript/script.json')
+				// .then(function (response) {
+				// 	if(response.status === 200){
+				// 		for(let i=0; i<response.data.length; i++) {
+				// 			let obj = {id: 'originFile', name: response.data[i]}
+				// 			_this.scriptsListWindows.push(obj);
+				// 		}
+				// 	}
+				// })
+				// .catch(function (response) {
+				// 	console.log(response);
+				// });
 			},
 			loadLinuxScripts(){//拉取服务器中linux执行脚本列表
 				let _this = this;
-				axios.get('/api/v1/default/scripts?platform=LINUX')
-				.then(function (response) {
-					if(response.status === 200){
-						for(var i in response.data) {
-							let obj = {id: i, name: response.data[i]}
+				JSONP('static/linuxScript/script.json', (err, response) => {
+				  if (err) {
+				    console.error(err.message);
+				  } else {
+				  	console.log(response);
+				  	if(response.status === 200){
+						for(let i=0; i<response.data.length; i++) {
+							let obj = {id: 'originFile', name: response.data[i]}
 							_this.scriptsListLinux.push(obj);
 						}
 					}
-				})
-				.catch(function (response) {
-					console.log(response);
+				  }
 				});
+				// axios.get('static/linuxScript/script.json')
+				// .then(function (response) {
+				// 	if(response.status === 200){
+				// 		for(let i=0; i<response.data.length; i++) {
+				// 			let obj = {id: 'originFile', name: response.data[i]}
+				// 			_this.scriptsListLinux.push(obj);
+				// 		}
+				// 	}
+				// })
+				// .catch(function (response) {
+				// 	console.log(response);
+				// });
 			},
 			addLocalFiles(){
 				var _this = this;
@@ -638,13 +662,14 @@
 				}
 				// 遍历选择的执行脚本文件 start
 				let windowsScripts = _this.script.windows;
-				let scriptsArr = [];
+				let scriptsArrWin = [];
+				let scriptsArrLin = [];
 				let linuxScripts = _this.script.linux;
 				for(let i in windowsScripts){
 					for(let x in windowsScripts[i]){
 						_this.packageJson.script.windows[i].push({name:`./armc_script/${windowsScripts[i][x]['name']}`, description:windowsScripts[i][x]['desc']});// 赋值执行脚本的name到package.json中
 						if(windowsScripts[i][x]['id'] !== 'localFile'){
-							scriptsArr.push(windowsScripts[i][x]['id']);// 将脚本id加入临时数组，用于去重后请求远程服务器下载
+							scriptsArrWin.push(windowsScripts[i][x]['name']);// 将脚本id加入临时数组，用于下载文件
 						}
 					}
 				}
@@ -652,20 +677,36 @@
 					for(let y in linuxScripts[j]){
 						_this.packageJson.script.linux[j].push({name:`./armc_script/${linuxScripts[j][y]['name']}`, description:linuxScripts[j][y]['desc']});// 赋值执行脚本的name到package.json中
 						if(linuxScripts[j][y]['id'] !== 'localFile'){
-							scriptsArr.push(linuxScripts[j][y]['id']);// 将脚本id加入临时数组，用于去重后请求远程服务器下载
+							scriptsArrLin.push(linuxScripts[j][y]['name']);// 将脚本id加入临时数组，用于下载文件
 						}
 					}
 				}
-				let choosenScripts = _this.uniqueArr(scriptsArr);
+				let choosenScriptsWin = _this.uniqueArr(scriptsArrWin);
+				let choosenScriptsLin = _this.uniqueArr(scriptsArrLin);
 
 				let promiseArr = [];
-				for(let k in choosenScripts){
+				for(let k in choosenScriptsWin){
 					let p = new Promise(function(resolve,reject){
-						axios.get(`/api/v1/script/${choosenScripts[k]}/stream-content`)
+						axios.get(`static/windowsScript/${choosenScriptsWin[k]}`)
 						.then(function (response) {
 							if(response.status === 200){
-								_this.wzip.file(`${_this.wzipName}/armc_script/${response.data.fileName}`, response.data.fileContent, {base64: true});
-						    	// _this.wzip.file(`armc_script/${response.data.fileName}`, 'c3RhcnQgbXlzcWw=', {base64: true});
+								_this.wzip.file(`${_this.wzipName}/armc_script/${choosenScriptsWin[k]}`, response.data);
+						    	resolve('ok');
+						    }
+						})
+						.catch(function (response) {
+							console.log(response);
+							reject('err');
+						});
+					})
+					promiseArr.push(p);
+				}
+				for(let k in choosenScriptsLin){
+					let p = new Promise(function(resolve,reject){
+						axios.get(`static/linuxScript/${choosenScriptsLin[k]}`)
+						.then(function (response) {
+							if(response.status === 200){
+								_this.wzip.file(`${_this.wzipName}/armc_script/${choosenScriptsLin[k]}`, response.data);
 						    	resolve('ok');
 						    }
 						})
