@@ -13,7 +13,7 @@
 					:header-cell-style="cellStyle"
 					:cell-style="cellStyle">
 					<el-table-column
-						v-for="item in card.table"
+						v-for="item in $data[card.type]"
 						:key="item.prop"
 						:prop="item.prop"
 						:label="item.label">
@@ -33,27 +33,15 @@
 				</el-table>
 			</div>
 		</el-card>
-		<el-dialog :title="dialogInfo.name" :visible.sync="dialogFormVisible1" width="600px" class="script-dialog">
-			<el-form :model="dialogForm1">
-				<el-form-item :label="dialogForm1.label" label-width="120px">
-					<el-input v-model="dialogForm1.data" class="dialog-input"></el-input>
+		<el-dialog :title="dialogInfo.name" :visible.sync="dialogFormVisible" width="600px" class="script-dialog">
+			<el-form :model="$data[dialogInfo.form]">
+				<el-form-item v-for="item in $data[dialogInfo.type]" :key="item.prop" :label="item.label" label-width="120px">
+					<el-input v-model="$data[dialogInfo.form][item.prop]" class="dialog-input"></el-input>
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
-				<el-button @click="dialogFormVisible1 = false">取 消</el-button>
-				<el-button type="primary" @click="addItemSubmit1">确 定</el-button>
-			</div>
-		</el-dialog>
-
-		<el-dialog :title="dialogInfo.name" :visible.sync="dialogFormVisible2" width="600px" class="script-dialog">
-			<el-form :model="dialogForm2">
-				<el-form-item label="文件名" label-width="120px">
-					<el-input v-model="dialogForm2.data" class="dialog-input"></el-input>
-				</el-form-item>
-			</el-form>
-			<div slot="footer" class="dialog-footer">
-				<el-button @click="dialogFormVisible2 = false">取 消</el-button>
-				<el-button type="primary" @click="addItemSubmit2">确 定</el-button>
+				<el-button @click="dialogFormVisible = false">取 消</el-button>
+				<el-button type="primary" @click="addItemSubmit">确 定</el-button>
 			</div>
 		</el-dialog>
 	</div>
@@ -64,71 +52,34 @@
 	   data() {
 	      return {
 	        title: '服务管理',
+	        // 分类
 	        cards:[{
 	        	name: '开发语言',
 	        	data: 'lang',
-	        	type: 'single',
-	        	table:[{
-	        		prop: 'name',
-	        		label: '语言类种'
-	        	}]
+	        	type: 'langList',
+	        	form: 'langForm',
 	        },{
 	        	name: '服务类别',
 	        	data: 'serviceType',
-	        	type: 'single',
-	        	table:[{
-	        		prop: 'name',
-	        		label: '服务类别'
-	        	}]
+	        	type: 'serviceTypeList',
+	        	form: 'serviceTypeForm',
 	        },{
 	        	name: '功能类别',
 	        	data: 'funcType',
-	        	type: 'single',
-	        	table:[{
-	        		prop: 'name',
-	        		label: '功能类别'
-	        	}]
+	        	type: 'funcTypeList',
+	        	form: 'funcTypeForm',
 	        },{
 	        	name: '模板类型',
 	        	data: 'templateType',
-	        	type: 'multiple',
-	        	table:[{
-	        		prop: 'lang',
-	        		label: '开发语言'
-	        	},{
-	        		prop: 'flat',
-	        		label: '平台'
-	        	},{
-	        		prop: 'serviceType',
-	        		label: '服务类别'
-	        	},{
-	        		prop: 'funcType',
-	        		label: '功能类别'
-	        	},{
-	        		prop: 'templateName',
-	        		label: '模板名字'
-	        	}]
+	        	type: 'tempOrPlugTypeList',
+	        	form: 'tempOrPlugTypeForm',
 	        },{
 	        	name: '插件类型',
 	        	data: 'pluginType',
-	        	type: 'multiple',
-	        	table:[{
-	        		prop: 'lang',
-	        		label: '开发语言'
-	        	},{
-	        		prop: 'flat',
-	        		label: '平台'
-	        	},{
-	        		prop: 'serviceType',
-	        		label: '服务类别'
-	        	},{
-	        		prop: 'funcType',
-	        		label: '功能类别'
-	        	},{
-	        		prop: 'templateName',
-	        		label: '模板名字'
-	        	}]
+	        	type: 'tempOrPlugTypeList',
+	        	form: 'tempOrPlugTypeForm',
 	        }],
+	        // 表格数据
 	        lang: [{
 	          name: 'JAVA',
 	        }, {
@@ -147,18 +98,66 @@
 	        cellStyle:{
 	        	'text-align': 'center'
 	        },
-	        dialogFormVisible1: false,
-	        dialogForm1: {
-	        	label: '',
-	        	data: '',
-	        },
-	        dialogFormVisible2: false,
-	        dialogForm2: {
-	        	data: '',
-	        },
+	        dialogFormVisible: false,
+	        // 表格head及弹框表单item
+	        langList: [{
+        		prop: 'name',
+        		label: '语言类种'
+        	}],
+	        serviceTypeList: [{
+        		prop: 'name',
+        		label: '服务类别'
+        	},{
+        		prop: 'description',
+        		label: '描述'
+        	}],
+	        funcTypeList: [{
+        		prop: 'name',
+        		label: '功能类别'
+        	},{
+        		prop: 'description',
+        		label: '描述'
+        	}],
+	        tempOrPlugTypeList: [{
+        		prop: 'lang',
+        		label: '开发语言'
+        	},{
+        		prop: 'flat',
+        		label: '平台'
+        	},{
+        		prop: 'serviceType',
+        		label: '服务类别'
+        	},{
+        		prop: 'funcType',
+        		label: '功能类别'
+        	},{
+        		prop: 'templateName',
+        		label: '模板名字'
+        	}],
+        	// 表单model
+        	langForm: {
+        		name: '',
+        	},
+        	serviceTypeForm: {
+        		name: '',
+        		description: '',
+        	},
+        	funcTypeForm: {
+        		name: '',
+        		description: '',
+        	},
+        	tempOrPlugTypeForm: {
+        		lang: '',
+        		flat: '',
+        		serviceType: '',
+        		funcType: '',
+        		templateName: '',
+        	},
 	        dialogInfo: {
 	        	data: '',
 	        	name: '',
+	        	type: '',
+	        	form: '',
 	        },
 	      }
 	    },
@@ -175,26 +174,16 @@
 	      addItem(item) {
 	      	this.dialogInfo = {
 	      		data: item.data,
-	      		name: item.name
+	      		name: item.name,
+	      		type: item.type,
+	      		form: item.form
 	      	}
-	      	if(item.type === 'multiple'){
-				this.dialogForm2 = {
-					data: '',
-				};
-				this.dialogFormVisible2 = true;
-	      	}else{
-				this.dialogForm1 = {
-					label: item.table[0].label,
-					data: '',
-				};
-				this.dialogFormVisible1 = true;
-	      	}
+			this.dialogFormVisible = true;
 	      },
-	   	  addItemSubmit1(){
-			_this.dialogFormVisible1 = false;
-		  },
-	   	  addItemSubmit2(){
-			_this.dialogFormVisible2 = false;
+	   	  addItemSubmit(){
+	   	  	let form = this.dialogInfo.form;
+	   	  	console.log(this.$data[form]);
+			this.dialogFormVisible = false;
 		  },
 	    }
 	}

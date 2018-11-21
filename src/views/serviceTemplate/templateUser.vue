@@ -2,10 +2,8 @@
 	<div>
 	  <el-form ref="form" :model="form" label-width="80px" class="formBox">
 		<el-form-item label="选择语言">
-		    <el-select v-model="form.lang" placeholder="请选择开发语言">
-		      <el-option label="Java" value="1"></el-option>
-		      <el-option label="C++" value="2"></el-option>
-		      <el-option label="C#" value="3"></el-option>
+		    <el-select v-model="form.lang" placeholder="请选择开发语言" @change="langChange">
+		      <el-option v-for="item in langList" :label="item.label" :value="item.id" :key="item.id"></el-option>
 		    </el-select>
 		</el-form-item>
 		<el-form-item label="选择平台">
@@ -15,17 +13,13 @@
 		    </el-radio-group>
 	    </el-form-item>
 	  	<el-form-item label="选择主题">
-		    <el-select v-model="form.type" placeholder="请选择开发语言">
-		      <el-option class="select-options" label="主题微服务（描述描述描述描述描述描述描述描述描述）" title="主题微服务（描述描述描述描述描述描述描述描述描述）" value="1"></el-option>
-		      <el-option label="222" value="2"></el-option>
-		      <el-option label="333" value="3"></el-option>
+		    <el-select v-model="form.type" placeholder="请选择开发语言"  @change="typeChange">
+		      <el-option v-for="item in typeList" :label="item.label" :value="item.id" :key="item.id"></el-option>
 		    </el-select>
 		</el-form-item>
 	  	<el-form-item label="选择功能">
 		    <el-select v-model="form.func" placeholder="请选择开发语言">
-		      <el-option label="444" value="1"></el-option>
-		      <el-option label="555" value="2"></el-option>
-		      <el-option label="666" value="3"></el-option>
+		      <el-option v-for="item in funcList" :label="item.label" :value="item.id" :key="item.id"></el-option>
 		    </el-select>
 		</el-form-item>
 	  	<el-form-item label="选择模式">
@@ -38,7 +32,6 @@
 			    </el-tab-pane>
 		 	</el-tabs>
 		</el-form-item>
-
 	  </el-form>
 	</div>
 </template>
@@ -49,11 +42,40 @@
 	   data() {
 	      return {
 	        form: {
-	          lang: '1',
+	          lang: '2',
 	          type: '1',
 	          flat: '32',
-	          desc: '',
+	          func: '2',
+	          desc: '111',
 	        },
+	        langList: [{
+	        	label: 'Java',
+	        	id: '1',
+	        },{
+	        	label: 'C++',
+	        	id: '2',
+	        }],
+	        flatList: [{
+	        	label: 'x86（32位）',
+	        	id: '32'
+	        },{
+	        	label: 'x64（64位）',
+	        	id: '64'
+	        }],
+	        typeList: [{
+	        	label: '主题服务一',
+	        	id: '1'
+	        },{
+	        	label: '主题服务二',
+	        	id: '2'
+	        }],
+	        funcList: [{
+	        	label: '语言功能',
+	        	id: '1'
+	        },{
+	        	label: '开发功能',
+	        	id: '2'
+	        }],
 	        modeTab: 'guide',
 	      }
 	    },
@@ -63,7 +85,13 @@
 	      },
 	      handleClick(tab, event) {
 	        console.log(tab, event);
-	      }
+	      },
+	      langChange(value){
+	      	console.log(value);
+	      },
+	      typeChange(value){
+	      	console.log(value);
+	      },
 	    }
 	}
 </script>
