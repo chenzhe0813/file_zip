@@ -69,6 +69,14 @@ module.exports = {
       {
         test: /\.sass$/,
         loaders: ['style', 'css', 'sass']
+      },
+      {
+        test: /\.bat$/,
+        use: 'raw-loader'
+      },
+      {
+        test: /\.sh$/,
+        use: 'raw-loader'
       }
     ]
   },

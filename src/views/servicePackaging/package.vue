@@ -206,18 +206,29 @@
 						</div>
 					</el-collapse-item>
 				</el-collapse>
-				<!-- <span class="basic_mirror">基础镜像选择</span>
-				<el-select v-model="basicMirror" class="w140">
-					<el-option label="mirror1" value="mirror1"></el-option>
-					<el-option label="mirror2" value="mirror2"></el-option>
-					<el-option label="mirror3" value="mirror3"></el-option>
-				</el-select> -->
+			</el-card>
+			<el-card class="box-card mirror-card">
+				<div slot="header" class="clearfix">
+					<span>一键部署</span>
+				</div>
+				<el-form ref="deploy" label-width="100px">
+					<el-form-item label="使用平台">
+					    <el-select v-model="basicFlat" placeholder="请选择使用平台">
+					      <el-option v-if="windowsFlat" label="windows" value="windows"></el-option>
+					      <el-option v-if="linuxFlat" label="linux" value="linux"></el-option>
+					    </el-select>
+					</el-form-item>
+					<el-form-item label="基础镜像">
+						<el-input v-model="basicMirror" class="basic_mirror"></el-input>
+					</el-form-item>
+				</el-form>
+				<el-button type="primary" @click="handleSave('deploy')" class="deploy-btn">部署</el-button>
 			</el-card>
 
 
 <div class="btns-wrap">
 	<el-button type="primary" @click="handleCancel">取消</el-button>
-	<el-button type="primary" @click="handleSave" class="fRight">保存</el-button>
+	<el-button type="primary" @click="handleSave('save')" class="fRight">保存</el-button>
 </div>
 <!-- 弹出框 start-->
 <el-dialog title="添加脚本" :visible.sync="dialogFormVisible" width="600px" class="script-dialog">
@@ -366,7 +377,8 @@
 						version: '',
 						desc: '',
 					},
-					// basicMirror: 'mirror1',// 基础镜像
+					basicFlat: '',// 一键部署--使用平台
+					basicMirror: '',// 基础镜像
 					scriptsListWindows:[// Windows脚本库
 					],
 					scriptsListLinux:[// Linux脚本库
@@ -601,8 +613,10 @@
 
 				});
 			},
-			handleSave(){
-				this.packageJson.script = { //重置packageJson中的script
+			handleSave(type){
+				let _this = this;
+
+				_this.packageJson.script = { //重置packageJson中的script
 					windows:{
 						'pre-install': [],
 						'post-install': [],
@@ -622,7 +636,6 @@
 						'post-uninstall': []
 					}
 				};
-				let _this = this;
 				if(!_this.wzip){
 					return Message.error('请选择本地文件路径!');
 				}
@@ -649,19 +662,16 @@
 				}
 				let choosenScriptsWin = _this.uniqueArr(scriptsArrWin);
 				let choosenScriptsLin = _this.uniqueArr(scriptsArrLin);
-
 				let promiseArr = [];
+
 				for(let k in choosenScriptsWin){
 					let p = new Promise(function(resolve,reject){
-						axios.get(`static/windowsScript/${choosenScriptsWin[k]}`)
-						.then(function (response) {
-							if(response.status === 200){
-								_this.wzip.file(`${_this.wzipName}/armc_script/${choosenScriptsWin[k]}`, response.data);
+						import(`@s/windowsScript/${choosenScriptsWin[k]}`).then((value)=>{
+							_this.wzip.file(`${_this.wzipName}/armc_script/${choosenScriptsWin[k]}`, value);
 						    	resolve('ok');
-						    }
 						})
-						.catch(function (response) {
-							console.log(response);
+						.catch((err) => {
+							console.log(err.Message);
 							reject('err');
 						});
 					})
@@ -669,22 +679,19 @@
 				}
 				for(let k in choosenScriptsLin){
 					let p = new Promise(function(resolve,reject){
-						axios.get(`static/linuxScript/${choosenScriptsLin[k]}`)
-						.then(function (response) {
-							if(response.status === 200){
-								_this.wzip.file(`${_this.wzipName}/armc_script/${choosenScriptsLin[k]}`, response.data);
-						    	resolve('ok');
-						    }
+						import(`@s/linuxScript/${choosenScriptsLin[k]}`).then((value)=>{
+							_this.wzip.file(`${_this.wzipName}/armc_script/${choosenScriptsLin[k]}`, value);
+					    	resolve('ok');
 						})
-						.catch(function (response) {
-							console.log(response);
+						.catch((err) => {
+							console.log(err.Message);
 							reject('err');
 						});
 					})
 					promiseArr.push(p);
 				}
-
 				// 遍历选择的执行脚本文件 end
+
 				Promise.all(promiseArr).then((result) => {
 					_this.localScriptsWzip.map((item)=>{
 						_this.wzip.file(`${_this.wzipName}/armc_script/${item.name}`, item)
@@ -692,7 +699,12 @@
 					_this.wzip.file(`${_this.wzipName}/armc_package.json`, JSON.stringify(_this.packageJson));
 					_this.wzip.generateAsync({type:"blob"})
 					.then(function (content) {
-						saveAs(content, `${_this.wzipName}.zip`);
+						if(type==='save'){
+							saveAs(content, `${_this.wzipName}.zip`);
+						}else if(type==='deploy'){
+							// 上传至远程服务器
+							console.log(content);
+						}
 					}); 
 				}).catch((error) => {
 					console.log(error)
@@ -963,13 +975,11 @@
 		margin-left: 38px;
 	}
 	.basic_mirror{
-		display: inline-block;
-		height: 68px;
-		line-height: 68px;
-		font-size: 15px;
-		font-weight: 700;
-		color: $gray;
-		margin: 0 20px 0 4px;
+		width: 217px;
+	}
+	.deploy-btn{
+		margin-left: 30px;
+		margin-top: 10px;
 	}
 	.btns-wrap{
 		width: 226px;

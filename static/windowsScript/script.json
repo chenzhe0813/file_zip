@@ -1,4 +1,6 @@
 [
+	"append.bat",
 	"start.bat",
-	"stop.bat"
+	"stop.bat",
+	"format.bat"
 ]
