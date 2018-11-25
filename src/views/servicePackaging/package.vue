@@ -213,13 +213,13 @@
 				</div>
 				<el-form ref="deploy" label-width="100px">
 					<el-form-item label="使用平台">
-					    <el-select v-model="basicFlat" placeholder="请选择使用平台">
+					    <el-select v-model="packageJson['use-platform']" placeholder="请选择使用平台">
 					      <el-option v-if="windowsFlat" label="windows" value="windows"></el-option>
 					      <el-option v-if="linuxFlat" label="linux" value="linux"></el-option>
 					    </el-select>
 					</el-form-item>
 					<el-form-item label="基础镜像">
-						<el-input v-model="basicMirror" class="basic_mirror"></el-input>
+						<el-input v-model="packageJson['basic-mirror']" class="basic_mirror"></el-input>
 					</el-form-item>
 				</el-form>
 				<el-button type="primary" @click="handleSave('deploy')" class="deploy-btn">部署</el-button>
@@ -314,7 +314,9 @@
 						'start-args': '--port 11111',
 						'dependency':[],
 						'net-dependency':[],
-						'engine':[]
+						'engine':[],
+						'use-platform':'',
+						'basic-mirror':''
 					},
 					dependencyArr: [{
 						id: 'engine',
@@ -437,6 +439,7 @@
 				_this.windowsFlat = serviceFlat === 1 || serviceFlat === 3;
 				_this.linuxFlat = serviceFlat === 2 || serviceFlat === 3;
 				_this.flatTab = (_this.windowsFlat) ? 'windows' : 'linux';
+				_this.packageJson['use-platform'] = (_this.windowsFlat) ? 'windows' : 'linux';
 				if(_this.windowsFlat){
 					_this.packageJson.platforms['windows'] = _this.winFlatBit;
 					_this.loadWinScripts();
@@ -482,6 +485,7 @@
 			                _this.script = jsonContent.script;
 			                _this.windowsFlat = (jsonContent.platforms.windows && jsonContent.platforms.windows.length>0);
 			                _this.linuxFlat = (jsonContent.platforms.linux && jsonContent.platforms.linux.length>0);
+							_this.flatTab = (_this.windowsFlat) ? 'windows' : 'linux';
 			                if(_this.windowsFlat && _this.scriptsListWindows.length === 0){
 			                	_this.loadWinScripts();
 			                }
@@ -691,19 +695,45 @@
 					promiseArr.push(p);
 				}
 				// 遍历选择的执行脚本文件 end
+				// {
+				// 	'pre-install': [],
+				// 	'post-install': [],
+				// 	'pre-start': [],
+				// 	'start': [],
+				// 	'post-start': [],
+				// 	'pre-uninstall': [],
+				// 	'post-uninstall': []
+				// }
+				let dockerfileScript = [];
+				let scriptArr = _this.packageJson['use-platform'] === 'windows' 
+								? _this.packageJson.script.windows
+								: _this.packageJson.script.linux;
+				for(let key in scriptArr){
+					if(scriptArr[key].length){
+						for(let i=0;i<scriptArr[key].length;i++){
+							dockerfileScript.push(scriptArr[key][i]['name']);
+						}
+					}
+				}
+				console.log(dockerfileScript);
+				let dockerfile = `form testDocker\r\nto get.bat ok.bat fid.bat`;
 
 				Promise.all(promiseArr).then((result) => {
 					_this.localScriptsWzip.map((item)=>{
 						_this.wzip.file(`${_this.wzipName}/armc_script/${item.name}`, item)
 					})
 					_this.wzip.file(`${_this.wzipName}/armc_package.json`, JSON.stringify(_this.packageJson));
+					_this.wzip.file(`${_this.wzipName}/dockerfile`, dockerfile);
 					_this.wzip.generateAsync({type:"blob"})
 					.then(function (content) {
 						if(type==='save'){
 							saveAs(content, `${_this.wzipName}.zip`);
 						}else if(type==='deploy'){
 							// 上传至远程服务器
-							console.log(content);
+							let formData = new FormData;
+							formData.append('zipFile',content,`${_this.wzipName}.zip`);
+							console.log(formData);
+							console.log(formData.get('zipFile'));
 						}
 					}); 
 				}).catch((error) => {
