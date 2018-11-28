@@ -95,7 +95,7 @@
   
   .el-main {
     color: #333;
-    padding-bottom: 30px;
+    padding-bottom: 0;
   }
   .el-menu-item span {
     margin-left: 25px;

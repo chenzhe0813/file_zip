@@ -1,5 +1,5 @@
 	<template>
-		<div>
+		<div class="main-box">
 			<div class="open-zip-box clearfix">
 				<h3 class="open-zip-title">{{ title }}</h3>
 				<label id="realBtn" class="btn">
@@ -258,13 +258,21 @@
 	import Vue from 'vue'
 	import { mapGetters } from 'vuex'
 	import { MessageBox, Message } from 'element-ui'
-	import axios from 'axios';
+	import axios from 'axios'
 	import JSZip from 'jszip';
 	import originWinScripts from '@s/windowsScript/script.json';
 	import originLinScripts from '@s/linuxScript/script.json';
 	import saveAs from 'file-saver';
-		//拖拽
-		import VueDND from 'awe-dnd'
+	import VueDND from 'awe-dnd';//拖拽
+
+	let instance = axios.create({
+		baseURL: 'http://localhost:8080/',
+		timeout: 5000,
+		headers:{// 这里可设置所有的请求头
+	        'Content-Type':'multipart/form-data'
+	    }
+	})
+	Vue.prototype.$http=instance;
 		Vue.use(VueDND)
 		export default {
 			data () {
@@ -388,34 +396,34 @@
 					localScriptsListWindows:[],// 本地选择的Windows脚本库
 					localScriptsListLinux:[],// 本地选择的Linux脚本库
 					scriptSteps:[// 执行脚本模块步骤array
-					{
-						key: 'pre-uninstall',
-						name: '卸载前'
-					},
-					{
-						key: 'post-uninstall',
-						name: '卸载后'
-					},
-					{
-						key: 'pre-install',
-						name: '安装前'
-					},
-					{
-						key: 'post-install',
-						name: '安装后'
-					},
-					{
-						key: 'pre-start',
-						name: '启动前'
-					},
-					{
-						key: 'start',
-						name: '启动'
-					},
-					{
-						key: 'post-start',
-						name: '启动后'
-					}
+						{
+							key: 'pre-install',
+							name: '安装前'
+						},
+						{
+							key: 'post-install',
+							name: '安装后'
+						},
+						{
+							key: 'pre-start',
+							name: '启动前'
+						},
+						{
+							key: 'start',
+							name: '启动'
+						},
+						{
+							key: 'post-start',
+							name: '启动后'
+						},
+						{
+							key: 'pre-uninstall',
+							name: '卸载前'
+						},
+						{
+							key: 'post-uninstall',
+							name: '卸载后'
+						}
 					],
 					wzip: null,
 					localScriptsWzip: [],// 缓存本地选择的执行脚本文件
@@ -435,6 +443,9 @@
 				const serviceFlat = this.serviceFlat;
 				const winFlatBit = this.winFlatBit;
 				const linuxFlatBit = this.linuxFlatBit;
+				console.log(serviceFlat)
+				console.log(winFlatBit)
+				console.log(linuxFlatBit)
 				let _this = this;
 				_this.windowsFlat = serviceFlat === 1 || serviceFlat === 3;
 				_this.linuxFlat = serviceFlat === 2 || serviceFlat === 3;
@@ -715,8 +726,10 @@
 						}
 					}
 				}
-				console.log(dockerfileScript);
-				let dockerfile = `form testDocker\r\nto get.bat ok.bat fid.bat`;
+				let dockerfileScriptStr = dockerfileScript.join('&&');
+				let dockerfile = _this.packageJson['use-platform'] === 'windows' 
+								? `FROM ${_this.packageJson['basic-mirror']}\r\n\r\nRUN mkdir -p d:/svc/docker\r\n\r\nWORKDIR d:/svc/docker\r\n\r\nCOPY . .\r\n\r\nENTRYPOINT ["cmd", "/c", "${dockerfileScriptStr}"]`
+								: `FROM ${_this.packageJson['basic-mirror']}\r\n\r\nRUN mkdir -p /svc/docker\r\n\r\nWORKDIR /svc/docker\r\n\r\nCOPY . .\r\n\r\nENTRYPOINT ["/bin/sh", "-c", "${dockerfileScriptStr}"]`;
 
 				Promise.all(promiseArr).then((result) => {
 					_this.localScriptsWzip.map((item)=>{
@@ -734,6 +747,15 @@
 							formData.append('zipFile',content,`${_this.wzipName}.zip`);
 							console.log(formData);
 							console.log(formData.get('zipFile'));
+
+							_this.$http.post('/test',formData)
+							.then(function (response) {
+								console.log(response);
+								Message.success('部署成功！');
+							})
+							.catch(function (err) {
+								console.log(err);
+							});
 						}
 					}); 
 				}).catch((error) => {
@@ -790,6 +812,9 @@
 	}
 	.clearfix{
 		zoom:1;
+	}
+	.main-box{
+		margin-bottom: 30px;
 	}
 	.open-zip-box{
 		width: 800px;
