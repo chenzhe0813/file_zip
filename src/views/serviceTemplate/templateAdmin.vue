@@ -9,9 +9,7 @@
 				<el-table
 					:data="$data[card.data]"
 					style="width: 100%"
-					max-height="250"
-					:header-cell-style="cellStyle"
-					:cell-style="cellStyle">
+					max-height="250">
 					<el-table-column
 						v-for="item in $data[card.type]"
 						:key="item.prop"
@@ -95,9 +93,6 @@
 	        }, {
 	          name: '注册发现',
 	        }],
-	        cellStyle:{
-	        	'text-align': 'center'
-	        },
 	        dialogFormVisible: false,
 	        // 表格head及弹框表单item
 	        langList: [{
@@ -118,7 +113,7 @@
         		prop: 'description',
         		label: '描述'
         	}],
-	        tempOrPlugTypeList: [{
+	        tempOrPlugTypeList: [{//弹窗增加模板文件
         		prop: 'lang',
         		label: '开发语言'
         	},{
@@ -199,6 +194,7 @@
 	.addItemBtn{
 		float: right;
 		margin-top: -3px;
+		margin-right: 30px;
 	}
 	.dialog-input{
 		width: 340px;
