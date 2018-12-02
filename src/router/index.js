@@ -3,8 +3,6 @@ import Router from 'vue-router'
 import template from '@/views/serviceTemplate'
 import templateUser from '@/views/serviceTemplate/templateUser'
 import templateAdmin from '@/views/serviceTemplate/templateAdmin'
-import servicePackagingIndex from '@/views/servicePackaging/index'
-import servicePackaging from '@/views/servicePackaging/package'
 import contractGeneration from '@/views/contractGeneration'
 
 Vue.use(Router)
@@ -42,21 +40,6 @@ export default new Router({
       sideName: '契约生成',
       icon: 'iconfont el-icon-document',
       component: contractGeneration
-    },
-    {
-      path: '/servicePackagingIndex',
-      name: 'servicePackagingIndex',
-      sideName: '服务打包',
-      icon: 'iconfont el-icon-sold-out',
-      component: servicePackagingIndex,
-    },
-    {
-      path: '/servicePackaging',
-      name: 'servicePackaging',
-      sideName: '服务打包ing',
-      hide: true,
-      component: servicePackaging,
-      meta: { sideActive: '/servicePackagingIndex' }
     },
   ]
 })
