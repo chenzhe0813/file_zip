@@ -78,7 +78,7 @@
 					<p class="show-file-name">{{tempOrPlugTypeForm.file}}</p>
 					<el-input readonly class="dialog-input"></el-input>
 					<label id="realBtn" class="btn">
-						<input type="file" class="hide-inputs" id="openZip" name="file" @change='openZip()'>
+						<input type="file" class="hide-inputs" id="openZip" name="file" @change="openZip()" accept="application/zip">
 						<span class="openZip">选择</span>
 					</label>
 				</el-form-item>
@@ -232,7 +232,7 @@
         		funcType: '',
         		templateName: '',
         		type: '',
-        		file: '请选择压缩文件',
+        		file: '请选择.zip文件',
         	},
 	        dialogInfo: {
 	        	data: '',
@@ -274,6 +274,8 @@
 			.then(function (response) {
 				if(response.status === 200 && response.data.status === 0){
 					_this[type] = response.data.data;
+				}else{
+					Message.error(response.data.msg);
 				}
 			})
 			.catch(function (err) {
@@ -299,11 +301,11 @@
 			    	_this.tempOrPlugTypeForm.file = document.getElementById('openZip').value;
 			    }else{
 			    	document.getElementById('openZip').value='';
-			    	_this.tempOrPlugTypeForm.file = '请选择压缩文件';
-					Message.error('请选择压缩文件!');
+			    	_this.tempOrPlugTypeForm.file = '请选择.zip文件';
+					Message.error('请选择.zip文件!');
 				}
 		    }else{
-		    	_this.tempOrPlugTypeForm.file = '请选择压缩文件';
+		    	_this.tempOrPlugTypeForm.file = '请选择.zip文件';
 		    }
 	      },
 	      deleteRow(row, type) {
@@ -328,6 +330,8 @@
 			.then(function (response) {
 				if(response.status === 200 && response.data.status === 0){
 	    			_this.getDataList(type);
+				}else{
+					Message.error(response.data.msg);
 				}
 			})
 			.catch(function (err) {
@@ -337,7 +341,7 @@
 	      addItem(item) {
 	      	for(let i in this[item.form]){
 	      		if(item.form === 'tempOrPlugTypeForm' && i === 'file'){
-	      			// this[item.form][i] = '请选择压缩文件';
+
 	      		}else{
 		      		this[item.form][i] = '';
 		      	}
@@ -385,12 +389,14 @@
 				.then(function (response) {
 					if(response.status === 200 && response.data.status === 0){
 		    			_this.getDataList(type);
+						_this.dialogFormVisible = false;
+					}else{
+						Message.error(response.data.msg);
 					}
 				})
 				.catch(function (err) {
 					console.log(err);
 				});
-				_this.dialogFormVisible = false;
 	          } else {
 	            return false;
 	          }
@@ -401,8 +407,8 @@
 	          if (valid) {
 		   	  	let _this = this;
 				let file = document.getElementById('openZip').files[0];
-				if(!file){
-					return Message.error('请选择压缩文件!');
+				if(_this.tempOrPlugTypeForm.file === '请选择.zip文件'){//不用file做判断，原因是有可能选择了非压缩格式的文件
+					return Message.error('请选择.zip文件!');
 				}
 		   	  	let data = new FormData();
 		   	  	data.append("file", file);
@@ -424,8 +430,12 @@
 							if(res.status === 200 && res.data.status === 0){
 		    					_this.getDataList('templateType');
 								_this.dialogFormVisible2 = false;
+							}else{
+								Message.error(res.data.msg);
 							}
 						})
+					}else{
+						Message.error(response.data.msg);
 					}
 				})
 				.catch(function (err) {
