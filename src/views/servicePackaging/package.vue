@@ -736,7 +736,7 @@
 						_this.wzip.file(`${_this.wzipName}/armc_script/${item.name}`, item)
 					})
 					_this.wzip.file(`${_this.wzipName}/armc_package.json`, JSON.stringify(_this.packageJson));
-					_this.wzip.file(`${_this.wzipName}/dockerfile`, dockerfile);
+					_this.wzip.file(`${_this.wzipName}/Dockerfile`, dockerfile);
 					_this.wzip.generateAsync({type:"blob"})
 					.then(function (content) {
 						if(type==='save'){
