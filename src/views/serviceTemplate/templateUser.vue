@@ -14,12 +14,14 @@
 	    </el-form-item>
 	  	<el-form-item label="选择主题" prop="serviceCategoryId">
 		    <el-select v-model="form.serviceCategoryId" placeholder="请选择主题"  @change="handleClick">
-		      <el-option v-for="item in serviceType" :label="item.name" :value="item.id" :key="item.id"></el-option>
+		      <el-option v-if="!item.description" v-for="item in serviceType" :label="item.name" :value="item.id" :key="item.id"></el-option>
+		      <el-option v-if="item.description" v-for="item in serviceType" :label="item.name+' （'+item.description+'）'" :value="item.id" :key="item.id"></el-option>
 		    </el-select>
 		</el-form-item>
 	  	<el-form-item label="选择功能" prop="functionCategoryId">
 		    <el-select v-model="form.functionCategoryId" placeholder="请选择功能"  @change="handleClick">
-		      <el-option v-for="item in funcType" :label="item.name" :value="item.id" :key="item.id"></el-option>
+		      <el-option v-if="!item.description" v-for="item in funcType" :label="item.name" :value="item.id" :key="item.id"></el-option>
+		      <el-option v-if="item.description" v-for="item in funcType" :label="item.name+' （'+item.description+'）'" :value="item.id" :key="item.id"></el-option>
 		    </el-select>
 		</el-form-item>
 	  	<el-form-item label="选择模式" prop="type">
