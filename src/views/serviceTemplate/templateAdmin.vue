@@ -208,7 +208,10 @@
         		label: '功能类别'
         	},{
         		prop: 'name',
-        		label: '模板名字'
+        		label: '模板名称'
+        	},{
+        		prop: 'fileName',
+        		label: '文件名'
         	},{
         		prop: 'type',
         		label: '模式'
@@ -285,11 +288,20 @@
 	      formatter(row, column) {
 	      	//格式化模板类型--平台
 	      	if(column.property === 'systemPlatForm'){
-	      		return row.type === 1 ? 'x86(32位)' : 'x64(64位)'
+	      		return row.systemPlatForm === 1 ? 'x86(32位)' : 'x64(64位)'
 	      	}
 	      	//格式化模板类型--模式
 	      	if(column.property === 'type'){
 	      		return row.type === 1 ? '向导模式' : '插件模式'
+	      	}
+	      	//格式化模板类型--文件名
+	      	if(column.property === 'fileName'){
+	      		let name = row.fileName;
+				if(name.indexOf('_')>=0){
+					return name.substr(name.indexOf('_')+1);// 获取压缩文件名称
+				}else{
+					return name;
+				}
 	      	}
 	      	return row[column.property];
 	      },

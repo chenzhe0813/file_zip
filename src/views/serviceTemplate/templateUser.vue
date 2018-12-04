@@ -33,9 +33,11 @@
 		 	</el-tabs>
 		</el-form-item>
 	  </el-form>
-	  <div class="btns-wrap">
-		<el-button type="primary" @click="handleCancel">放弃</el-button>
-		<el-button type="primary" @click="handleSave" class="fRight">确定</el-button>
+	  <div class="btns-class">
+		  <div class="btns-wrap">
+			<el-button type="primary" @click="handleCancel">放弃</el-button>
+			<el-button type="primary" @click="handleSave" class="fRight">确定</el-button>
+		  </div>
 	  </div>
 	</div>
 </template>
@@ -45,6 +47,7 @@
 	import axios from 'axios';
 	import { MessageBox, Message } from 'element-ui';
 	import JSZip from 'jszip';
+	import saveAs from 'file-saver';
 	export default {
 	   data() {
 	      return {
@@ -59,6 +62,8 @@
 	        serviceType: [],
 	        funcType: [],
 	        desc: '',
+	        wzipName: '',// 保存的zip包名
+	        fileDirName: '',// 需要修改的文件名（包含路径）
 	        wzip: null,
 	      }
 	    },
@@ -106,6 +111,8 @@
     	  downloadTemplate(){
 			let _this = this;
 			_this.desc = '';
+			_this.wzipName = '';
+			_this.fileDirName = '';
 			_this.wzip = null;
     	  	axios({ // 用axios发送post请求
 	          method: 'post',
@@ -114,11 +121,23 @@
 	          responseType: 'blob' // 表明返回服务器返回的数据类型
 	        })
 			.then(function (response) {
-				console.log(response);
+				if(response.headers && response.headers.templatefilename){
+					let name = response.headers.templatefilename;
+					if(name.indexOf('_')>=0){
+						_this.wzipName = name.substr(name.indexOf('_')+1);// 获取压缩文件名称
+					}
+				}
+
 				_this.wzip = new JSZip();
 		    	_this.wzip.loadAsync(response.data).then(function (zip) {
-		    		if(zip.file(`package.json`)){
-		    			zip.file(`package.json`).async("string").then(function success(content) {
+	    			for(let i in zip.files){
+	    				if(zip.files[i].name.indexOf('package.json')>=0){
+		    				_this.fileDirName = zip.files[i].name;
+		    				break;
+		    			}
+	    			}
+		    		if(zip.file(`${_this.fileDirName}`)){
+		    			zip.file(`${_this.fileDirName}`).async("string").then(function success(content) {
 		    				_this.desc = content;
 		    			})
 		    		}
@@ -138,12 +157,26 @@
 			}).then(() => {
 				this.$refs['templateForm'].resetFields();
 				this.desc = '';
+				this.wzipName = '';
+				this.fileDirName = '';
 				this.wzip = null;
 			}).catch(() => {
 			});
 	      },
 	      handleSave() {
-	        console.log('save!');
+	      	let _this = this;
+	      	if(_this.wzip){
+	      		_this.wzip.file(`${_this.fileDirName}`, _this.desc);
+		      	_this.wzip.generateAsync({type:"blob"})
+						.then(function (content) {
+							saveAs(content, `${_this.wzipName}`);
+						}).catch((error) => {
+							console.log(error)
+						})
+	      		return;
+	      	}else{
+	      		return Message.error('没有匹配到模板！');
+	      	}
 	      },
 	      checkParams(){
 	      	let { programLanguageId, serviceCategoryId, functionCategoryId } = this.form;
@@ -183,9 +216,13 @@ $fontColor: #909399;
 	overflow:hidden; 
 	text-overflow:ellipsis;
 }
-.btns-wrap{
-	width: 226px;
-	margin: 0 auto;
+.btns-class{
+	margin-top: 40px;
+	width: 810px;
+	.btns-wrap{
+		width: 226px;
+		margin: 0 auto;
+	}
 }
 .fRight{
 	float: right;
