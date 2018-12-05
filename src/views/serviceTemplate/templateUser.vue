@@ -118,7 +118,7 @@
 			_this.wzip = null;
     	  	axios({ // 用axios发送post请求
 	          method: 'post',
-	          url: 'api/v1/template/download', // 请求地址
+	          url: '/api/v1/template/download', // 请求地址
 	          data: _this.form, // 参数
 	          responseType: 'blob' // 表明返回服务器返回的数据类型
 	        })
