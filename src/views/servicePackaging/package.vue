@@ -318,8 +318,6 @@
 								'post-uninstall': []
 							}
 						},
-						'start': 'LightLooping.jar',
-						'start-args': '--port 11111',
 						'dependency':[],
 						'net-dependency':[],
 						'engine':[],
@@ -728,7 +726,7 @@
 				}
 				let dockerfileScriptStr = dockerfileScript.join('&&');
 				let dockerfile = _this.packageJson['use-platform'] === 'windows' 
-								? `FROM ${_this.packageJson['basic-mirror']}\r\n\r\nRUN mkdir -p d:/svc/docker\r\n\r\nWORKDIR d:/svc/docker\r\n\r\nCOPY . .\r\n\r\nENTRYPOINT ["cmd", "/c", "${dockerfileScriptStr}"]`
+								? `FROM ${_this.packageJson['basic-mirror']}\r\n\r\nMAINTAINER ${_this.packageJson['author']['name']} "${_this.packageJson['author']['contact-email']}"\r\n\r\nRUN mkdir -p d:/svc/docker\r\n\r\nWORKDIR d:/svc/docker\r\n\r\nCOPY . .\r\n\r\nENTRYPOINT ["cmd", "/c", "${dockerfileScriptStr}"]`
 								: `FROM ${_this.packageJson['basic-mirror']}\r\n\r\nRUN mkdir -p /svc/docker\r\n\r\nWORKDIR /svc/docker\r\n\r\nCOPY . .\r\n\r\nENTRYPOINT ["/bin/sh", "-c", "${dockerfileScriptStr}"]`;
 
 				Promise.all(promiseArr).then((result) => {
